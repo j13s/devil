@@ -10,11 +10,11 @@ OBJ=devil.o userio.o tools.o tag.o insert.o calctxt.o initio.o config.o \
  lac_cfg.o
 
 ifdef GER
-CFLAGS=-Wall -Werror -O3 -m486 -g -DGNU_C -DGO32 -DGER -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
+CFLAGS=-Wall -Werror -O3 -g -DGNU_C -DGO32 -DGER -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
 else
-CFLAGS=-Wall -Werror -O3 -m486 -g -DGNU_C -DGO32 -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
-#CFLAGS=-Wall -Werror -O3 -m486 -g -DLIST_DEBUG -DGNU_C -DGO32 -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
-#CFLAGS=-Wall -Werror -O3 -m486 -DGNU_C -DGO32 -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
+CFLAGS=-Wall -Werror -O3 -g -DGNU_C -DGO32 -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
+#CFLAGS=-Wall -Werror -O3 -g -DLIST_DEBUG -DGNU_C -DGO32 -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
+#CFLAGS=-Wall -Werror -O3 -DGNU_C -DGO32 -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
 endif
 
 # %.exe: %.out
@@ -31,11 +31,11 @@ compile: $(OBJ)
 %.o: %.c
 	gcc -MMD $(CFLAGS) -o $@ $<
 plotsys.o: plotsys.c plotsys.h plotdata.h structs.h
-	gcc -I wins -I language -Wall -m486 -g3 -DGNU_C -c plotsys.c -o plotsys.o
+	gcc -I wins -I language -Wall -g3 -DGNU_C -c plotsys.c -o plotsys.o
 plottxt.o: plottxt.c plottxt.h plotsys.h plotdata.h structs.h
-	gcc -I wins -I language -Wall -Werror -O3 -m486 -g -DGNU_C -c plottxt.c -o plottxt.o
+	gcc -I wins -I language -Wall -Werror -O3 -g -DGNU_C -c plottxt.c -o plottxt.o
 title.o: title.c title.h structs.h
-	gcc -I wins -I language -Wall -O3 -m486 -g -DGNU_C -c title.c -o title.o
+	gcc -I wins -I language -Wall -O3 -g -DGNU_C -c title.c -o title.o
 lac_cfg.o: lac_cfg.c lac_cfg.h
-	gcc -I wins -I language -Wall -O3 -m486 -g -DGNU_C -c lac_cfg.c -o lac_cfg.o
+	gcc -I wins -I language -Wall -O3 -g -DGNU_C -c lac_cfg.c -o lac_cfg.o
 
