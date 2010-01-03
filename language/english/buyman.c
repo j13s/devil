@@ -16,4 +16,7 @@
     along with this program (file COPYING); if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA. */
 
-void buy_manual(FILE *f) {  }
+void buy_manual(FILE *f) {
+}
+
+

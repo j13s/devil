@@ -20,28 +20,30 @@
     along with this program (file COPYING); if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA. */
 
-#include "version.h"    
+#include "version.h"
 
 const char *cred_txt[] = {
- "------------------------- !! MODIFIED VERSION !! -------------------------",
- "DEVIL - Version "VERSION""LC_VERSION" - Date: "__DATE__" Time: "__TIME__,
- "DESCENT Editor for Vertices,Items and Levels at all",
- "For the latest release (with source code) try:",
- " http://wwwrzstud.rz.uni-karlsruhe.de/~ubdb/index.html",
- "--------------------------------------------------------------------------",
- "Copyright 1995-1997 Achim Stremplat.",
- "DEVIL comes with ABSOLUTELY NO WARRANTY.",
- "This is free software, and you are welcome to redistribute it under",
- "certain conditions. For further information see file 'COPYING'",
- "For distribution with commercial or shareware programs see readme.txt.",
- "--------------------------------------------------------------------------",
- "Thanks must go to",
- "- Robin Martin for translating the manual.",
- "- The guys from Parallax for making a great",
- "  game&support&my new computer system.",
- "--------------------------------------------------------------------------",
- "If debugging is the procedure to fix bugs in a program,",
- "then programming is the procedure to create bugs.",
- "------------------------- !! MODIFIED VERSION !! -------------------------",
- "See README.X for more info.",
- NULL };
+    "------------------------- !! MODIFIED VERSION !! -------------------------",
+    "DEVIL - Version " VERSION "" LC_VERSION " - Date: " __DATE__ " Time: "
+    __TIME__,
+    "DESCENT Editor for Vertices,Items and Levels at all",
+    "For the latest release (with source code) try:",
+    " http://wwwrzstud.rz.uni-karlsruhe.de/~ubdb/index.html",
+    "--------------------------------------------------------------------------",
+    "Copyright 1995-1997 Achim Stremplat.",
+    "DEVIL comes with ABSOLUTELY NO WARRANTY.",
+    "This is free software, and you are welcome to redistribute it under",
+    "certain conditions. For further information see file 'COPYING'",
+    "For distribution with commercial or shareware programs see readme.txt.",
+    "--------------------------------------------------------------------------",
+    "Thanks must go to",
+    "- Robin Martin for translating the manual.",
+    "- The guys from Parallax for making a great",
+    "  game&support&my new computer system.",
+    "--------------------------------------------------------------------------",
+    "If debugging is the procedure to fix bugs in a program,",
+    "then programming is the procedure to create bugs.",
+    "------------------------- !! MODIFIED VERSION !! -------------------------",
+    "See README.X for more info.",
+    NULL
+};
