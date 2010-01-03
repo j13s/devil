@@ -1,5 +1,5 @@
 makeall: d.exe 
-include depend
+
 # include wins/makefile
 # plotsys.o is not linked. Instead psysfast.o is used (see file "link" and
 # plotsys.c).
