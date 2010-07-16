@@ -15,7 +15,6 @@
     You should have received a copy of the GNU General Public License
     along with this program (file COPYING); if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA. */
-#include <dir.h>
 
 #include "structs.h"
 #include "readlvl.h"
@@ -32,7 +31,9 @@
 #include "version.h"
 #include "askcfg.h"
 #include "config.h"
+
 #include "lac_cfg.h"
+#include "linux_config.h"
 
 #define CFG_FNAME "PLAY%.2d"
 #define CFG_CURNAME "TMPDEVIL"
@@ -155,7 +156,7 @@ int savestatus(int playlevel) {
     struct node *n;
     int i, j, k;
     struct leveldata *ld = l;
-    char fname[255];
+    char fname[FILENAME_MAX];
 
 
     in_changecurrentlevel(NULL);
@@ -295,34 +296,36 @@ int savestatus(int playlevel) {
 
             if ( ( (init.d_ver == d1_10_sw) || (d1_10_reg) ||
                   (d1_14_reg) ) && l != NULL ) {
-                char dr[MAXDRIVE], pa[MAXDIR], fi[MAXFILE], ex[MAXEXT];
-                char pg1filename[MAXPATH], pg1tmpname[MAXPATH];
+                char pg1filename[FILENAME_MAX], pg1tmpname[FILENAME_MAX];
                 FILE* pg1file, *tmpfile;
                 char* data;
                 int size;
 
-                fnsplit(l->filename, dr, pa, fi, ex);
-                fnmerge(pg1filename, dr, pa, fi, ".pg1");
+                /* Find a .pg1 file with the same basename? */
+                linux_change_ext(pg1filename, l->filename, "pg1");
+                
                 pg1file = fopen(pg1filename, "rb");
 
+                
                 if (!pg1file) {
-                    fnmerge(pg1filename, dr, pa, fi, ".dtx");
+                    linux_change_ext(pg1filename, l->filename, "dtx");
                     pg1file = fopen(pg1filename, "rb");
                 }
 
                 if (!pg1file) {
-                    fnmerge(pg1filename, dr, pa, "devil", ".pg1");
+                    linux_change_basename(pg1filename, l->filename, "devil");
+                    linux_change_ext(pg1filename, pg1filename, "pg1");
                     pg1file = fopen(pg1filename, "rb");
                 }
 
                 if (!pg1file) {
-                    fnmerge(pg1filename, dr, pa, "devil", ".dtx");
+                    linux_change_basename(pg1filename, l->filename, "devil");
+                    linux_change_ext(pg1filename, pg1filename, "dtx");
                     pg1file = fopen(pg1filename, "rb");
                 }
 
                 if (pg1file) {
-                    fnsplit(fname, dr, pa, fi, ex);
-                    fnmerge(pg1tmpname, dr, pa, fi, ".dtx");
+                    linux_change_ext(pg1tmpname, fname, "dtx");
                     tmpfile = fopen(pg1tmpname, "wb");
                     fseek(pg1file, 0, SEEK_END);
                     size = ftell(pg1file);
@@ -1544,16 +1547,16 @@ int saveplaymsn(int savetoddir) {
     }
 
     if (init.d_ver >= d2_12_reg && l != NULL) {
-        char dr[MAXDRIVE], pa[MAXDIR], fi[MAXFILE], ex[MAXEXT];
-        char hxmfilename[MAXPATH];
+        char hxmfilename[FILENAME_MAX];
         FILE* hxmfile;
 
-        fnsplit(l->filename, dr, pa, fi, ex);
-        fnmerge(hxmfilename, dr, pa, fi, ".hxm");
+        linux_change_ext(hxmfilename, l->filename, "hxm");
         hxmfile = fopen(hxmfilename, "rb");
 
         if (!hxmfile) {
-            fnmerge(hxmfilename, dr, pa, "devil", ".hxm");
+            linux_change_basename(hxmfilename, l->filename, "devil");
+            linux_change_ext(hxmfilename, hxmfilename, "hxm");
+            
             hxmfile = fopen(hxmfilename, "rb");
         }
 
@@ -1597,26 +1600,26 @@ int saveplaymsn(int savetoddir) {
 
     if ( ( (init.d_ver == d1_10_sw) || (d1_10_reg) ||
           (d1_14_reg) ) && l != NULL ) {
-        char dr[MAXDRIVE], pa[MAXDIR], fi[MAXFILE], ex[MAXEXT];
-        char pg1filename[MAXPATH], hx1filename[MAXPATH];
+        char pg1filename[FILENAME_MAX], hx1filename[FILENAME_MAX];
         FILE* pg1file, *hx1file;
-
-        fnsplit(l->filename, dr, pa, fi, ex);
-        fnmerge(pg1filename, dr, pa, fi, ".pg1");
+        
+        linux_change_ext(pg1filename, l->filename, "pg1");
         pg1file = fopen(pg1filename, "rb");
 
         if (!pg1file) {
-            fnmerge(pg1filename, dr, pa, fi, ".dtx");
+            linux_change_ext(pg1filename, l->filename,"dtx");
             pg1file = fopen(pg1filename, "rb");
         }
 
         if (!pg1file) {
-            fnmerge(pg1filename, dr, pa, "devil", ".pg1");
+            linux_change_basename(pg1filename, l->filename, "devil");
+            linux_change_ext(pg1filename, pg1filename, "pg1");
             pg1file = fopen(pg1filename, "rb");
         }
 
         if (!pg1file) {
-            fnmerge(pg1filename, dr, pa, "devil", ".dtx");
+            linux_change_basename(pg1filename, l->filename, "devil");
+            linux_change_ext(pg1filename, pg1filename, "dtx");
             pg1file = fopen(pg1filename, "rb");
         }
 
@@ -1657,11 +1660,12 @@ int saveplaymsn(int savetoddir) {
             fclose(pg1file);
         }
 
-        fnmerge(hx1filename, dr, pa, fi, ".hx1");
+        linux_change_ext(hx1filename, l->filename, "hx1");
         hx1file = fopen(hx1filename, "rb");
 
         if (!hx1file) {
-            fnmerge(hx1filename, dr, pa, "devil", ".hx1");
+            linux_change_basename(hx1filename, l->filename, "devil");
+            linux_change_ext(hx1filename, hx1filename, "hx1");
             hx1file = fopen(hx1filename, "rb");
         }
 

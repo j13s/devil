@@ -7,7 +7,7 @@ OBJ=devil.o userio.o tools.o tag.o insert.o calctxt.o initio.o config.o \
  askcfg.o plot.o plottxt.o plotsys.o click.o savetool.o readlvl.o \
  readtxt.o do_event.o do_stat.o do_ins.o do_mod.o do_light.o do_move.o \
  do_tag.o do_side.o grfx.o do_opts.o opt_txt.o options.o macros.o title.o\
- lac_cfg.o
+ lac_cfg.o linux_config.o
 
 ifdef GER
 CFLAGS=-Wall -O3 -g -DGNU_C -DGO32 -DGER -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
