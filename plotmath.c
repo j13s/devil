@@ -38,10 +38,3 @@ static inline struct point_2d *SUB_2D(struct point_2d *e, struct point_2d *a,
     (e)->x[1] = (a)->x[1] - (b)->x[1];
     return e;
 }
-
-
-static inline float round(float x) {
-    return x < 0.0 ? floor(x + 0.5) : ceil(x - 0.5);
-}
-
-
