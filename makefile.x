@@ -9,10 +9,12 @@ OBJ=devil.o userio.o tools.o tag.o insert.o calctxt.o initio.o config.o \
  do_tag.o do_side.o grfx.o do_opts.o opt_txt.o options.o macros.o title.o\
  lac_cfg.o linux_config.o
 
+GRX_INCLUDES=-I$(HOME)/include
+
 ifdef GER
-CFLAGS=-Wall -O3 -g -DGNU_C -DGO32 -DGER -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
+CFLAGS=$(GRX_INCLUDES) -Wall -O3 -g -DGNU_C -DGO32 -DGER -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
 else
-CFLAGS=-Wall -O3 -g -DGNU_C -DGO32 -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
+CFLAGS=$(GRX_INCLUDES) -Wall -O3 -g -DGNU_C -DGO32 -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
 #CFLAGS=-Wall -O3 -g -DLIST_DEBUG -DGNU_C -DGO32 -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
 #CFLAGS=-Wall -O3 -DGNU_C -DGO32 -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
 endif
@@ -35,7 +37,9 @@ plotsys.o: plotsys.c plotsys.h plotdata.h structs.h
 plottxt.o: plottxt.c plottxt.h plotsys.h plotdata.h structs.h
 	gcc -I wins -I language -Wall -O3 -g -DGNU_C -c plottxt.c -o plottxt.o
 title.o: title.c title.h structs.h
-	gcc -I wins -I language -Wall -O3 -g -DGNU_C -c title.c -o title.o
+	gcc $(GRX_INCLUDES) -I wins -I language -Wall -O3 -g -DGNU_C -c title.c -o title.o
 lac_cfg.o: lac_cfg.c lac_cfg.h
 	gcc -I wins -I language -Wall -O3 -g -DGNU_C -c lac_cfg.c -o lac_cfg.o
-
+linux_config.o: linux_config.c linux_config.h
+	gcc -std=c99 -I wins -I language -Wall -O3 -g -DGNU_C -c linux_config.c -o linux_config.o
+    
