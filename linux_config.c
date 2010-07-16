@@ -5,6 +5,9 @@
         ^
 */
 
+#include <stdio.h>
+#include <string.h>
+
 char *
 linux_find_ext_p(char* filename) {
     /* Loop backwards until a period is found */
