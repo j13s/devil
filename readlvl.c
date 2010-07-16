@@ -16,8 +16,6 @@
     along with this program (file COPYING); if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA. */
 
-#include <dir.h>
-
 #include "structs.h"
 #include "userio.h"
 #include "tools.h"
@@ -37,6 +35,7 @@
 #include "readlvl.h"
 
 #include "lac_cfg.h"
+#include "linux_config.h"
 
 enum descent loading_level_version;
 
@@ -1281,10 +1280,8 @@ struct leveldata *readlevel(char *filename) {
            strcpy(&pogfilename[strlen(pogfilename)-3],"POG");
          */
         {
-            char d[MAXDRIVE], p[MAXDIR], f[MAXFILE], e[MAXEXT];
-            fnsplit(filename, d, p, f, e);
             checkmem( pogfilename = MALLOC(strlen(filename) + 1) );
-            fnmerge(pogfilename, d, p, f, ".pog");
+            linux_change_ext(pogfilename, filename, "pog");
         }
         printmsg(TXT_LOOKINGFORPOGFILE, pogfilename);
         changepogfile(pogfilename);
@@ -1292,26 +1289,27 @@ struct leveldata *readlevel(char *filename) {
     }
 
     if ( (init.d_ver == d1_10_sw) || (d1_10_reg) || (d1_14_reg) ) {
-        char d[MAXDRIVE], p[MAXDIR], f[MAXFILE], e[MAXEXT];
-        char pg1filename[MAXPATH];
+        char pg1filename[FILENAME_MAX];
         FILE* pg1file;
 
-        fnsplit(filename, d, p, f, e);
-        fnmerge(pg1filename, d, p, f, ".pg1");
+        linux_change_ext(pg1filename, filename, "pg1");
+        
         pg1file = fopen(pg1filename, "rb");
 
         if (!pg1file) {
-            fnmerge(pg1filename, d, p, f, ".dtx");
+            linux_change_ext(pg1filename, filename, "dtx");
             pg1file = fopen(pg1filename, "rb");
         }
 
         if (!pg1file) {
-            fnmerge(pg1filename, d, p, "devil", ".pg1");
+            linux_change_basename(pg1filename, filename, "devil");
+            linux_change_ext(pg1filename, pg1filename, "pg1");
             pg1file = fopen(pg1filename, "rb");
         }
 
         if (!pg1file) {
-            fnmerge(pg1filename, d, p, "devil", ".dtx");
+            linux_change_basename(pg1filename, filename, "devil");
+            linux_change_ext(pg1filename, pg1filename, "dtx");
             pg1file = fopen(pg1filename, "rb");
         }
 
