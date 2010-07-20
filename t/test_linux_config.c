@@ -10,26 +10,6 @@ int main() {
     plan_no_plan();
     char filename[] = "/tmp/test.txt";
     
-    /* Point to the period of the extension */
-    char* ext_p = linux_find_ext_p(filename);
-    ok(
-        ext_p == filename + strlen("/tmp/test"),
-        "Point to first character of extension"
-    );
-    
-    /* Point to the last forward-slash of the path */
-    char* path_p = linux_find_path_p(filename);
-    ok(
-        path_p == filename + strlen("/tmp"),
-        "Point to last character of path"
-    );
-    
-    /* Point to the first character of the filename */
-    char* basename_p = linux_find_basename_p(filename);
-    ok(
-        basename_p = filename + strlen("/tmp/"),
-        "Point to the first character of basename"
-    );
     
     /* Find the extension of a file */
     char ext[FILENAME_MAX];
