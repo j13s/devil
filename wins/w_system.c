@@ -22,7 +22,6 @@
 #include <grx20.h>
 #include <unistd.h>
 #include <fnmatch.h>
-#include <sys/farptr.h>
 #include <sys/stat.h>
 #include "wins_int.h"
 #include "w_tools.h"
