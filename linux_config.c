@@ -9,13 +9,17 @@
 
 void
 linux_find_ext(char* filename, char* ext) {
-    /*
-        The pointer for the extension points to the the period and the
-        extension then follows.
-    */
-    char* ext_p = strrchr(filename, '.') + 1;
+    /* Find where extension starts */
+    char* ext_p = strrchr(filename, '.');
     
-    strcpy(ext, ext_p);
+    /* If no extension, ext points to an empty string */
+    if (ext_p == NULL) {
+        strcpy(ext, "");
+    }
+    else {
+        /* ext will contain only the extension without a leading period */
+        strcpy(ext, ext_p + 1);
+    }
 }
 
 /*

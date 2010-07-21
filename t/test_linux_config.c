@@ -18,6 +18,12 @@ int main() {
         !strcmp(ext, "txt"),
         "Find the extension of a file"
     );
+    /* Return empty string if no extension */
+    linux_find_ext("test", ext);
+    ok(
+        !strcmp(ext, ""),
+        "Return empty string if no extension"
+    );
     
     /* Find the full path of a file */
     char path[FILENAME_MAX];

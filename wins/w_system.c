@@ -20,15 +20,14 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <grx20.h>
+#include <dos.h>
+#include <dir.h>
 #include <unistd.h>
 #include <fnmatch.h>
 #include <sys/farptr.h>
 #include <sys/stat.h>
 #include "wins_int.h"
 #include "w_tools.h"
-
-#include <dirent.h>
-#include "../linux_config.h"
 
 #define DEFAULT_FONT "wins.fnt"
 
@@ -490,67 +489,71 @@ int ws_getevent(struct ws_event *se, int wait) {
 
 
 /* gives all filenames at 'path' with extension(s) 'ext' (the extensions
-   must be seperated with a '.'). In numfiles is the number
-   of files found returned. If numfiles==0 no file found, numfiles==-1 path
-   not found, numfiles==-2 invalid path or extension. path="" or path=NULL or
-   ext=NULL is not allowed. You must free filenames[i] and filenames. */
-char **ws_getallfilenames(const char *path, const char *ext, int *numfiles) {
-    /*
-        Stores the char strings that hold the filenames matching the extension
-        passed in ext
-    */
-    char **filenames = NULL;
-    
-    /* Empty string, NULL paths not allowed */
+   must be seperated with a '.'). In no is the number
+   of files found returned. If no==0 no file found, no==-1 path not found,
+   no==-2 invalid path or extension. path="" or path=NULL or ext=NULL is not
+   allowed. You must free filenames[i] and filenames. */
+char **ws_getallfilenames(const char *path, const char *ext, int *no) {
+    struct ffblk files;
+    char buffer[255], real_path[255], **filenames, new_ext[4];
+    const char *ext_pos, *old_pos = ext;
+
+
     if (path == NULL || strlen(path) == 0) {
-        *numfiles = -2;
+        *no = -2;
         return NULL;
     }
-    
-    /* Open the directory */
-    DIR *dirp = opendir(path);
-    
-    /* If the attempt to open the directory failed, return NULL */
-    if (dirp == NULL) {
-        *numfiles = -1;
-        return NULL;
+
+    strcpy(buffer, path);
+
+    if (buffer[strlen(buffer) - 1] == '/' || buffer[strlen(buffer) - 1] ==
+        '\\') {
+        buffer[strlen(buffer) - 1] = 0;
     }
-    
-    /* Holds the file entry for the directory */
-    struct dirent *file;
-    /* Will return 0 if no files are found */
-    *numfiles = 0;
-    
-    
-    while ((file = readdir(dirp)) != NULL) {
-        /*  Use to hold the extension of the file we are comparing to the
-            extension we want */
-        char file_ext[256];
-        /* Copy the file extension into file_ext for comparison */
-        linux_find_ext(file->d_name, file_ext);
-        
-        /* Compare file extensions and reallocate memory as appropriate */
-        if (!strcmp(ext, file_ext)) {
-            /* Increase the number of files found */
-            (*numfiles)++;
-            
-            /*  Grow the filenames array to accomodate another char pointer for
-                the found file */
-            filenames = realloc(filenames, sizeof(char *) * *numfiles);
-            
-            /*  Allocate memory for the filename and assign the pointer to the
-                new spot in the filenames array */
-            filenames[*numfiles - 1]
-                = malloc((strlen(file->d_name) + 1) * sizeof(char));
-            
-            /* Finally, copy the filename into the array */
-            strcpy(filenames[*numfiles - 1], file->d_name);
+
+    if (strlen(buffer) != 2 || buffer[1] != ':') {
+        if (findfirst(buffer, &files, FA_ARCH | FA_RDONLY | FA_DIREC)
+           || (files.ff_attrib & FA_DIREC) == 0) {
+            *no = -1;
+            return NULL;
         }
     }
-    
-    
-    closedir(dirp);
-    
+
+    *no = 0;
+    filenames = NULL;
+    strcpy(real_path, buffer);
+
+    do {
+        ext_pos = strchr(old_pos, '.');
+
+        if (ext_pos == NULL) {
+            ext_pos = &old_pos[strlen(old_pos)];
+        }
+
+        if (ext_pos - old_pos > 3) {
+            return filenames;
+        }
+
+        strncpy(new_ext, old_pos, ext_pos - old_pos);
+        new_ext[ext_pos - old_pos] = 0;
+        old_pos = ext_pos + 1;
+        strcpy(buffer, real_path);
+        strcat(buffer, "/*.");
+        strcat(buffer, new_ext);
+
+        if ( !findfirst(buffer, &files, FA_ARCH | FA_RDONLY) ) {
+            do {
+                checkmem( filenames =
+                             REALLOC( filenames, sizeof(char *) * (++ * no) ) );
+                checkmem( filenames[*no -
+                                    1] =
+                             MALLOC( (strlen(files.ff_name) +
+                                      1) * sizeof(char) ) );
+                strcpy(filenames[*no - 1], files.ff_name);
+            } while ( !findnext(&files) );
+        }
+    } while (strlen(ext_pos) > 0);
+
     return filenames;
 }
 
