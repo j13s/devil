@@ -555,78 +555,69 @@ char **ws_getallfilenames(const char *path, const char *ext, int *numfiles) {
 }
 
 
+/* This doesn't really make any sense to me yet.  Why search for directories
+   with extensions? */
 /* gives all directories at 'path' with extension(s) 'ext' (the extensions
    must be seperated by '.'). In no is the number
    of dirs found returned. If no==0 no file found, no==-1 path not found,
    no==-2 invalid path or extension. path="" or path=NULL or ext=NULL is not
    allowed. You must free filenames[i] and filenames. */
-char **ws_getalldirs(const char *path, const char *ext, int *no) {
-    struct ffblk files;
-    char buffer[255], real_path[255], **filenames, new_ext[4];
-    const char *ext_pos, *old_pos = ext;
-
-
-    if (path == NULL || strlen(path) == 0) {
-        *no = -2;
-        return NULL;
+char **ws_getalldirs(const char *path, const char *ext, int *numdirs) {
+    /* Holds the char pointers of the directory names */
+    char **directories = NULL;
+    /* Will hold the information necessary to determine if the file is a
+       directory */
+    struct stat file_stats;
+    
+    /* Hold the number of total filenames */
+    int num = 0;
+    /* Get every single file from the path with extension ext */
+    char **filenames = ws_getallfilenames(path, ext, &num);
+    
+    /* If an error occurred in ws_getallfilenames, return the null pointer */
+    if (num == -1 || num == -2) {
+        return directories;
     }
-
-    strcpy(buffer, path);
-
-    if (buffer[strlen(buffer) - 1] == '/' || buffer[strlen(buffer) - 1] ==
-        '\\') {
-        buffer[strlen(buffer) - 1] = 0;
+    
+    /* Set the number of found directories to zero */
+    *numdirs = 0;
+    
+    /* Loop over every filename to see if it is a directory.  If it is,
+       allocate memory for the directory name and store a pointer to that
+       string in directories */
+    for (int i = 0; i < num; i++) {
+        /* Gather the information about the file to see if it's a directory */
+        stat(filenames[i], &file_stats);
+        
+        /* Find if the file is a directory */
+        if (S_ISDIR(file_stats.st_mode)) {
+            /* This will be used to allocate the correct amount of memory for
+               the array of char pointers */
+            (*numdirs)++;
+            
+            /* Reallocate the memory for the char pointer array to accomodate
+               the next char string */
+            directories = realloc(directories, sizeof(char *) * *numdirs);
+            /* Allocate memory for the name of the directory.  The +2 is for
+               the leading forward-slash and terminator */
+            directories[i] = malloc((strlen(filenames[i]) + 2) * sizeof(char));
+            
+            /* Copy the directory name first */
+            strcpy(directories[i], filenames[i]);
+            
+            /* Add the leading slash and terminator */
+            directories[i][strlen(filenames[i])] = '/';
+            directories[i][strlen(filenames[i]) + 1] = 0;   
+        }
+        
+        /* Must free the string because it's on the heap */
+        free(filenames[i]);
     }
-
-    if (strlen(buffer) != 2 || buffer[1] != ':') {
-        if (findfirst(buffer, &files, FA_ARCH | FA_RDONLY | FA_DIREC)
-           || (files.ff_attrib & FA_DIREC) == 0) {
-            *no = -1;
-            return NULL;
-        }
-    }
-
-    *no = 0;
-    filenames = NULL;
-    strcpy(real_path, buffer);
-
-    do {
-        ext_pos = strchr(old_pos, '.');
-
-        if (ext_pos == NULL) {
-            ext_pos = &old_pos[strlen(old_pos)];
-        }
-
-        if (ext_pos - old_pos > 3) {
-            return filenames;
-        }
-
-        strncpy(new_ext, old_pos, ext_pos - old_pos);
-        new_ext[ext_pos - old_pos] = 0;
-        old_pos = ext_pos + 1;
-        strcpy(buffer, real_path);
-        strcat(buffer, "/*.");
-        strcat(buffer, new_ext);
-
-        if ( !findfirst(buffer, &files, FA_ARCH | FA_RDONLY | FA_DIREC) ) {
-            do {
-                if (files.ff_attrib & FA_DIREC) {
-                    checkmem( filenames =
-                                 REALLOC( filenames, sizeof(char *) *
-                                         (++ * no) ) );
-                    checkmem( filenames[*no -
-                                        1] =
-                                 MALLOC( (strlen(files.ff_name) + 2) *
-                                        sizeof(char) ) );
-                    strcpy(filenames[*no - 1], files.ff_name);
-                    filenames[*no - 1][strlen(files.ff_name)] = '/';
-                    filenames[*no - 1][strlen(files.ff_name) + 1] = 0;
-                }
-            } while ( !findnext(&files) );
-        }
-    } while (strlen(ext_pos) > 0);
-
-    return filenames;
+    
+    /* Also on the heap */
+    free(filenames);
+    
+    return directories;
 }
 
 

@@ -88,7 +88,7 @@
     void ws_textmode(void);
     int ws_getevent(struct ws_event *se, int wait);
     char **ws_getallfilenames(const char *path, const char *ext, int *numfiles);
-    char **ws_getalldirs(const char *path, const char *ext, int *no);
+    char **ws_getalldirs(const char *path, const char *ext, int *numdirs);
     void ws_makepath(const char *oldpath, char *newpath);
     void ws_splitpath(char *fullpath, char *drive, char *path, char *name,
                       char *ext);
