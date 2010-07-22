@@ -3,9 +3,6 @@ W_OBJ=w_init.o w_event.o wi_buts.o wi_keys.o wi_winma.o wi_menu.o w_draw.o \
 GRX_INCLUDES=-I$(HOME)/include
 
 compile: $(W_OBJ)
-	copy *.d depend /Y >NUL
-	del ..\d.out
-	del ..\d.exe
 
 makeall: w_test.exe
 CFLAGS=-MMD -Wall -O3 -g -DGNU_C -DGO32 -ansi -pedantic -ffast-math -Wwrite-strings -c
