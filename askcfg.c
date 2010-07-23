@@ -32,12 +32,6 @@ void makedospath(const char *oldpath, char *newpath) {
 
 
     ws_makepath(oldpath, newpath);
-
-    for (i = 0; i < strlen(newpath); i++) {
-        if (newpath[i] == '/') {
-            newpath[i] = '\\';
-        }
-    }
 }
 
 

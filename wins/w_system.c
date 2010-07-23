@@ -623,26 +623,7 @@ char **ws_getalldirs(const char *path, const char *ext, int *numdirs) {
 /* Make the most simple path from oldpath and store it in newpath.
    Therefore remove all '..' etc. */
 void ws_makepath(const char *oldpath, char *newpath) {
-    char *p, *hp, buffer[300];
-
-
-    if (newpath != oldpath) {
-        p = hp = newpath;
-    }
-    else {
-        p = hp = buffer;
-    }
-
-    while (*p != 0) {
-        if (*p == '\\') {
-            *p = '/';
-        }
-
-        *p = toupper(*p);
-        p++;
-    }
-
-    strcpy(newpath, hp);
+    strcpy(newpath, oldpath);
 }
 
 
