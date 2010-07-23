@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "userio.h"
 #include "lac_cfg.h"
@@ -39,7 +40,10 @@ void lac_read_cfg(void) {
         while ( !feof(cfgfile) ) {
             fgets(s, sizeof(s), cfgfile);
             s[79] = 0;
-            strlwr(s);
+            for (int i = 0; i < 80; i++) {
+                s[i] = (char)tolower(s[i]);
+            }
+
 
             if ( ( p = strstr(s, "alwayssmooth") ) ) {
                 if ( ( p = lac_find_value(p) ) ) {

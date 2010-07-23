@@ -67,7 +67,7 @@ int ws_initgrfx(int xres, int yres, int colors, const char *fontname) {
         return 0;
     }
 
-    if (GrSizeX() != xres || GrSizeY() != yres || GrNumColors() != colors) {
+    if (GrSizeX() != xres || GrSizeY() != yres) {
         fprintf(errf, "Can't set grfx-mode. Try to load VESA-driver\n");
         return 0;
     }
@@ -633,8 +633,6 @@ void ws_makepath(const char *oldpath, char *newpath) {
         p = hp = buffer;
     }
 
-    _fixpath(oldpath, hp);
-
     while (*p != 0) {
         if (*p == '\\') {
             *p = '/';
@@ -652,7 +650,7 @@ void ws_makepath(const char *oldpath, char *newpath) {
 void ws_splitpath(char *fullpath, char *drive, char *path, char *name,
                   char *ext)
 {
-    fnsplit(fullpath, drive, path, name, ext);
+    
 }
 
 
@@ -664,7 +662,6 @@ int ws_matchname(char *wildcard, char *name) {
 
 /* Disable control-c. (remember: Cube-menu) */
 void ws_disablectrlc(void) {
-    setcbrk(0);
     signal(SIGINT, SIG_IGN);
 }
 

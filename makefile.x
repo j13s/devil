@@ -12,9 +12,9 @@ OBJ=devil.o userio.o tools.o tag.o insert.o calctxt.o initio.o config.o \
 GRX_INCLUDES=-I$(HOME)/include
 
 ifdef GER
-CFLAGS=$(GRX_INCLUDES) -Wall -O3 -g -DGNU_C -DGO32 -DGER -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
+CFLAGS=$(GRX_INCLUDES) -std=c99 -Wall -O3 -g -DGNU_C -DGO32 -DGER -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
 else
-CFLAGS=$(GRX_INCLUDES) -Wall -O3 -g -DGNU_C -DGO32 -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
+CFLAGS=$(GRX_INCLUDES) -std=c99 -Wall -O3 -g -DGNU_C -DGO32 -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
 #CFLAGS=-Wall -O3 -g -DLIST_DEBUG -DGNU_C -DGO32 -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
 #CFLAGS=-Wall -O3 -DGNU_C -DGO32 -ansi -pedantic -ffast-math -Wwrite-strings -I wins -I language -c
 endif
@@ -23,11 +23,7 @@ endif
 #	rem strip $<
 #	coff2exe $<
 d.exe: $(OBJ) 
-	gcc @linkx
-	strip -o dx dx.out
-	coff2exe dx
-	del dx
-	copy *.d depend /Y >NUL
+	gcc -L$(HOME)/lib -z muldefs @linkx
 
 compile: $(OBJ)
 %.o: %.c
@@ -39,7 +35,7 @@ plottxt.o: plottxt.c plottxt.h plotsys.h plotdata.h structs.h
 title.o: title.c title.h structs.h
 	gcc $(GRX_INCLUDES) -I wins -I language -Wall -O3 -g -DGNU_C -c title.c -o title.o
 lac_cfg.o: lac_cfg.c lac_cfg.h
-	gcc -I wins -I language -Wall -O3 -g -DGNU_C -c lac_cfg.c -o lac_cfg.o
+	gcc -std=c99 -I wins -I language -Wall -O3 -g -DGNU_C -c lac_cfg.c -o lac_cfg.o
 linux_config.o: linux_config.c linux_config.h
 	gcc -std=c99 -I wins -I language -Wall -O3 -g -DGNU_C -c linux_config.c -o linux_config.o
     

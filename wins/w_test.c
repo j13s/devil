@@ -66,15 +66,14 @@ enum evcodes {
 void(*do_event[ec_num_of_codes]) (struct w_event *, int);
 
 void dec_quit(struct w_event *w, int ec) {
-    w->w_flags = w_f_end;
+    /* w->w_flags = w_f_end; */
 }
 
 
 void main(void) {
     struct w_window *w1, *w2, iw1 = {
-        0, 100, 100, 200, 200, 200, 200, 0, "BLA",
-        "Dies ist ein Helptext der automatisch formatiert wird",
-        wb_drag | wb_size | wb_close, wr_save, NULL, NULL, NULL
+        0, 100, 100, 200, 200, 200, 200, 0, "BLA", NULL,
+        "Dies ist ein Helptext der automatisch formatiert wird"
     };
     char *opt[5] = {
         "Switch", "Only texture", "Shoot through", "Normal", "Door"
@@ -131,7 +130,6 @@ void main(void) {
         exit(5);
     }
 
-    w_startwins();
     w_closewins();
 }
 

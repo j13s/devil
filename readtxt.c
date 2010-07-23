@@ -22,6 +22,7 @@
 #include "tools.h"
 #include "initio.h"
 #include "readtxt.h"
+#include <strings.h>
 
 extern int init_test;
 extern int txtoffsets[desc_number];
@@ -330,11 +331,11 @@ int readcustomtxts(FILE *f) {
               txts */
             for (j = 0, k = 0;
                  ( ( k < (D1_txt.ruxsize & 0x0F) ) ||
-                  (stricmp(s,
+                  (strcasecmp(s,
                            pig.pig_txts[j].rname) != 0) ) &&
                  (j < pig.num_pigtxts);
                  j++) {
-                if (stricmp(s, pig.pig_txts[j].rname) == 0) {
+                if (strcasecmp(s, pig.pig_txts[j].rname) == 0) {
                     k++;
                 }
             }
