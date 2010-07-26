@@ -655,7 +655,7 @@ int newpigfile(char *pigname, FILE *pogfile) {
         strcpy(pigfname, init.pigpaths[init.d_ver]);
         strcat(pigfname, "/");
         strcat(pigfname, pigname);
-        strcpy(&pigfname[strlen(pigfname) - 3], "PIG");
+        strcpy(&pigfname[strlen(pigfname) - 3], "pig");
 
         if ( ( pf = fopen(pigfname, "rb") ) == NULL ) {
             printf("Can't open pigfile in newpigfile: '%s'\n", pigfname);
@@ -717,9 +717,9 @@ int newpigfile(char *pigname, FILE *pogfile) {
 /* reads texture ham_sd from file specified in texture in direction dir.
    if ham_sd==NULL, read pig_sd.
    dir=0 -> normal (origin left upper corner x+ y+).
-   dir=1 -> 90ø   (origin right upper corner x- y+).
-   dir=2 -> 180ø   (origin right lower corner x- y-).
-   dir=3 -> 270ø    (origin left lower corner x+ y-). */
+   dir=1 -> 90Ã¸   (origin right upper corner x- y+).
+   dir=2 -> 180Ã¸   (origin right lower corner x- y-).
+   dir=3 -> 270Ã¸    (origin left lower corner x+ y-). */
 void readbitmap(char *dest, struct pig_txt *pig_sd, struct ham_txt *ham_sd,
                 int dir)                                                    {
     struct pig_txt *sd = ham_sd ? ham_sd->pig : pig_sd;
