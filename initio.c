@@ -297,7 +297,8 @@ int readpalettes(FILE *f) {
                      malloc( (NUM_SECURITY * 2 + NUM_LIGHTCOLORS + 1) * 256 ) );
         palettes[i].lighttables = (unsigned char *)
                                   ( (unsigned long)palettes[i].
-                                   mem_lighttables & 0xffffff00 );
+                                   mem_lighttables /* & 0xffffff00 */ );
+        /* 0xffffff00 is magic.  I have no idea why it is here. */
 
         if (fread(&palettes[i].lighttables[256 * NUM_SECURITY], 256,
                   NUM_LIGHTCOLORS, f) != NUM_LIGHTCOLORS) {
