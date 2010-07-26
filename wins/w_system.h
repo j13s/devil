@@ -94,7 +94,6 @@
                       char *ext);
     int ws_matchname(char *wildcard, char *name);
     void ws_disablectrlc(void);
-    int ws_waitforkey(void);
     int ws_testforkey(void);
     void ws_setdriver(const char *name);
 

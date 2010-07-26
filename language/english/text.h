@@ -284,11 +284,9 @@
 /* askcfg.c */
 #define TXT_CANTWRITECFG "Can't write cfg-file %s?!\n"
 #define TXT_CFGFILENOTWRITTEN "Aborted. CFG-file not written.\n" \
-                              "If you want to reconfigure Devil, start it with \"devil /config\"\n" \
-                              "Press a key.\n"
+                              "If you want to reconfigure Devil, start it with \"devil /config\"\n"
 #define TXT_CFGFILEWRITTEN "OK. Please start Devil with \"devil\".\n" \
-                           "If you want to reconfigure Devil, start it with \"devil /config\"\n" \
-                           "Press a key.\n"
+                           "If you want to reconfigure Devil, start it with \"devil /config\"\n"
 /* config.c */
 #define TXT_CANTREADCTDEF "Can't read default entries in conversion table."
 #define TXT_CANTREADCTTXT "Can't read texture entry %d in conversion table."

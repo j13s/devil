@@ -96,13 +96,11 @@ int writeconfig(int olddata) {
                         &grfxdriver,
                         &resolution) ) {
         printf(TXT_CFGFILENOTWRITTEN);
-        ws_waitforkey();
         exit(1);
     }
 
     if ( ( cfgfile = fopen(init.cfgname, "w") ) == NULL ) {
         printf(TXT_CANTWRITECFG, init.cfgname);
-        ws_waitforkey();
         exit(2);
     }
 
@@ -129,7 +127,6 @@ int writeconfig(int olddata) {
 
     if ( ( cfgfile = fopen(init.batchfilename, "w") ) == NULL ) {
         printf(TXT_CANTWRITECFG, init.batchfilename);
-        ws_waitforkey();
         exit(2);
     }
 
@@ -149,7 +146,6 @@ int writeconfig(int olddata) {
     fprintf(cfgfile, "set GRX20DRV=%s\n", grfxdrvs[grfxdriver]);
     fclose(cfgfile);
     printf(TXT_CFGFILEWRITTEN);
-    ws_waitforkey();
     exit(1);
 }
 

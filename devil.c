@@ -86,8 +86,6 @@ void my_exit(void) {
     printf("WARNING: It is not sure that your levels will be properly\n");
     printf("working after the reconstruction. You should save them\n");
     printf("under a different filename than the last 'real' saved version\n");
-    printf("Press a key.\n");
-    ws_waitforkey();
     exit(2);
 }
 

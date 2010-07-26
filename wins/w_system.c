@@ -689,11 +689,6 @@ void ws_mousewarp(int x, int y) {
 }
 
 
-int ws_waitforkey(void) {
-    return getkey();
-}
-
-
 int ws_testforkey(void) {
     return kbhit();
 }

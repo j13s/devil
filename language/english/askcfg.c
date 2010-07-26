@@ -134,10 +134,9 @@ void testscreen(int grfxdrv, int res) {
     printf("Testing graphics driver %s with resolution %dx%d:\n" \
            "You must see a big white cross, a blue rectangle in the middle\n" \
            "and some red text above the rectangle.\n" \
-           "You can end the test with any key (well, don't try shift :-).\n" \
-           "Press a key.", grfxdrvs[grfxdrv], xs = res_xysize[res][0],
+           "You can end the test with any key (well, don't try shift :-).\n",
+           grfxdrvs[grfxdrv], xs = res_xysize[res][0],
            ys = res_xysize[res][1]);
-    ws_waitforkey();
 
     if ( ws_initgrfx(xs, ys, 256, init.fontname) ) {
         ws_setcolor(1, 255, 255, 255);
@@ -152,15 +151,13 @@ void testscreen(int grfxdrv, int res) {
                           TESTTEXT2) ) / 2, 25, xs, TESTTEXT2, 3, -1 );
         ws_drawtext( ( xs - ws_pixstrlen(
                           TESTTEXT3) ) / 2, 40, xs, TESTTEXT3, 3, -1 );
-        ws_waitforkey();
         ws_textmode();
     }
     else {
         ws_textmode();
-        printf("Woops. Couldn't init grfx-mode. Press a key.\n");
+        printf("Woops. Couldn't init grfx-mode.\n");
         printf(
             "Maybe you should load a resident VESA-driver (like UniVBE).\n");
-        ws_waitforkey();
     }
 }
 
@@ -303,8 +300,6 @@ int askconfigdata(int *d_ver, char *devilpath, char *d1path, char *d2path,
                         "You won't be able to load/edit Descent 2 levels.\n");
                 }
 
-                printf("Press a key.\n");
-                ws_waitforkey();
                 break;
 
             case 'E':
