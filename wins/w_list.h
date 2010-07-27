@@ -17,13 +17,13 @@
   #define my_assert(x) \
     { if ( !(x) ) { fprintf(errf, \
                             "Assert-error in file %s line %d\n", __FILE__,\
-                            __LINE__); } }
+                            __LINE__); my_exit(); } }
   #define my_assertval(x) my_assert(x)
  #endif
  #define checkmem(x) { \
         if ( (x) == NULL ) { \
             fprintf(errf, "No mem in file %s line %d\n", __FILE__, __LINE__);  \
-            } }
+            my_exit(); } }
     struct node {
         struct node *next, *prev;
         int no;
