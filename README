@@ -10,7 +10,7 @@ Depends:
 To use Devil:
 
 - Install Descent or Descent 2. The shareware versions should also work
-but I am not sure since I have not tested them.
+  but I am not sure since I have not tested them.
 
 - Download the binary distribution of Devil 2.2lc2 and decompress.
 - Download the source from the repository and build the devil
