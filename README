@@ -1,9 +1,23 @@
-This is an in progress port of Devil from DOS to Linux.  It crashes and
-is not usable yet.  There are also specific paths to libraries in the
-Makefiles that will cause errors.  Change these to point to your
-libraries.
+This is an in progress port of Devil from DOS to Linux.  There are 
+specific paths to libraries in the Makefiles that will cause errors.
+Change these to point to your libraries.
 
 Depends:
 - Allegro 4.2.2
 - GRX 2.4.8
 - libtap (for testing, can be grabbed from CCAN)
+
+To use Devil:
+
+- Install Descent or Descent 2. The shareware versions should also work but I am not sure since I have not tested them.
+
+- Download the binary distribution of Devil 2.2lc2 and decompress.
+- Download the source from the repository and build the devil executable.
+- Place the devil executable in the devil-2.2lc2 directory and run. Some filenames will have to be transliterated to their lowercase equivalents.
+- Run devil and set your path to the Descent or Descent 2 directory and exit.
+
+Run devil again to start the editor. At the moment the program will crash when blitting to the GrContext. Have not figured this out yet.
+
+James Kastrantas
+jgk16@msstate.edu
+http://github.com/james-kastrantas/devil
