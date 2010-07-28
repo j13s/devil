@@ -1,0 +1,9 @@
+This is an in progress port of Devil from DOS to Linux.  It crashes and
+is not usable yet.  There are also specific paths to libraries in the
+Makefiles that will cause errors.  Change these to point to your
+libraries.
+
+Depends:
+- Allegro 4.2.2
+- GRX 2.4.8
+- libtap (for testing, can be grabbed from CCAN)
