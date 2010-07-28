@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "tap.h"
+#include <tap.h>
 
 #include "../linux_config.h"
 #include "../linux_config.c"
