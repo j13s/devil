@@ -346,8 +346,8 @@ void ws_drawtext(int x, int y, int w, const char *txt, int fg, int bg) {
 
 
 void ws_bmdrawtext(struct ws_bitmap *bm, int x, int y, int w, const char *txt,
-                   int fg,
-                   int bg)
+                   GrColor fg,
+                   GrColor bg)
 {
     char buffer[256];
     int clen = ws_charstrlen(w);

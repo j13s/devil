@@ -85,8 +85,8 @@
     int ws_charstrlen(int w);
     void ws_drawtext(int x, int y, int w, const char *txt, int fg, int bg);
     void ws_bmdrawtext(struct ws_bitmap *bm, int x, int y, int w,
-                       const char *txt, int fg,
-                       int bg);
+                       const char *txt, GrColor fg,
+                       GrColor bg);
     void ws_textmode(void);
     int ws_getevent(struct ws_event *se, int wait);
     char **ws_getallfilenames(const char *path, const char *ext, int *numfiles);
