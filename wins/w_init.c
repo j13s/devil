@@ -1453,7 +1453,7 @@ void w_readcfg(FILE *f) {
 /* cursor is activated if  event.kbstat&bitmask==kbstat. w=width, h=height,
    xo,yo=hot spot, colortable maps colors from data to normal colors. */
 void w_initkbstatcursor(char *data, int w, int h, int xo, int yo,
-                        long *colortable, enum kbstattypes kbstat,
+                        GrColorTableP colortable, enum kbstattypes kbstat,
                         enum kbstattypes bitmask)
 {
     int i;

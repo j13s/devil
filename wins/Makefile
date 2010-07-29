@@ -4,12 +4,14 @@ GRX_INCLUDES=-I$(HOME)/include
 
 compile: $(W_OBJ)
 
+%.o: %.c
+	gcc $(CFLAGS) -o $@ $<
 makeall: w_test.exe
-CFLAGS=-MMD -Wall -g3 -DGNU_C -DGO32 -ansi -pedantic -Wwrite-strings -c
+CFLAGS=$(GRX_INCLUDES) -std=c99 -MMD -Wall -g3 -DGNU_C -DGO32 -pedantic -Wwrite-strings -c
 %.exe: %.out
 	rem strip $<
 	coff2exe $<
 w_test.out: $(W_OBJ) w_test.o $(HOME)/lib/libgrx20X.a
-	gcc -g3 -L$(HOME)/lib -o w_test.out w_test.o ../linux_config.o $(W_OBJ) -lgrx20X -lX11 -lm
+	gcc $(CFLAGS)-g3 -L$(HOME)/lib -o w_test.out w_test.o ../linux_config.o $(W_OBJ) -lgrx20X -lX11 -lm
 w_system.o: w_system.c wins.h wins_int.h w_system.h w_list.h
-	gcc $(GRX_INCLUDES) -std=c99 -Wall -g3 -DGNU_C -c w_system.c -o w_system.o
+	gcc $(CFLAGS) -c w_system.c -o w_system.o

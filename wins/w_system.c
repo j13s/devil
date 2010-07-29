@@ -19,7 +19,7 @@
 
 #include <signal.h>
 #include <stdlib.h>
-#include <grx20.h>
+
 #include <unistd.h>
 #include <fnmatch.h>
 #include <sys/stat.h>
@@ -47,8 +47,9 @@ extern FILE *errf;
    If you are successful, return a 1.
    If you can't initialize this mode, return a 0. */
 int ws_initgrfx(int xres, int yres, int colors, const char *fontname) {
-    static unsigned char pixels[2];
-/* unsigned char value; */
+    static char pixels[2];
+/* unsigned char value; 
+    Why?  -jgk*/
     GrBitmap pat_bm = {
         0, 2, pixels, 1, 0, 0
     };
@@ -158,7 +159,7 @@ struct ws_bitmap *ws_createbitmap(int xsize, int ysize, char *bm) {
 
 
 /* get the pointer to the data of the bitmap. */
-unsigned char *ws_getbitmapdata(struct ws_bitmap *b) {
+char *ws_getbitmapdata(struct ws_bitmap *b) {
     return ( (GrContext *)(b->bitmap) )->gc_baseaddr[0];
 }
 
@@ -494,6 +495,10 @@ int ws_getevent(struct ws_event *se, int wait) {
    not found, numfiles==-2 invalid path or extension. path="" or path=NULL or
    ext=NULL is not allowed. You must free filenames[i] and filenames. */
 char **ws_getallfilenames(const char *path, const char *ext, int *numfiles) {
+    /* Holds the file entry for the directory */
+    struct dirent *file;
+    /* Pointer for the directory we are scanning */
+    DIR *dirp;
     /*
         Stores the char strings that hold the filenames matching the extension
         passed in ext
@@ -507,7 +512,7 @@ char **ws_getallfilenames(const char *path, const char *ext, int *numfiles) {
     }
     
     /* Open the directory */
-    DIR *dirp = opendir(path);
+    dirp = opendir(path);
     
     /* If the attempt to open the directory failed, return NULL */
     if (dirp == NULL) {
@@ -515,8 +520,7 @@ char **ws_getallfilenames(const char *path, const char *ext, int *numfiles) {
         return NULL;
     }
     
-    /* Holds the file entry for the directory */
-    struct dirent *file;
+
     /* Will return 0 if no files are found */
     *numfiles = 0;
     
@@ -697,7 +701,7 @@ void ws_setdriver(const char *name) {
 /* init cursor structure (which is whatever you want). w=width, h=height,
    xo,yo=hot spot, colortable maps colors in data to colors on screen. */
 ws_cursor *ws_initcursor(char *data, int w, int h, int xo, int yo,
-                         long *colortable)
+                         GrColorTableP colortable)
 {
     return (ws_cursor *)GrBuildCursor(data, w, w, h, xo, yo, colortable);
 }

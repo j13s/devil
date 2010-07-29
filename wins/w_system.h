@@ -5,6 +5,8 @@
 
 #ifndef W_SYSTEM
 #define W_SYSTEM
+
+#include <grx20.h>
 /* Some constants you must modify: */
 /* quite clear: */
 #define SYS_COMPILER_NAME "GNU-C 2.7.1 with libgrx 2.00beta"
@@ -46,13 +48,13 @@
     int ws_initgrfx(int xres, int yres, int colors, const char *fontname);
     void ws_resetmousecolors(void);
     ws_cursor *ws_initcursor(char *data, int w, int h, int xo, int yo,
-                             long *colortable);
+                             GrColorTableP colortable);
     void ws_changecursor(ws_cursor *cursor);
     void ws_killcursor(ws_cursor *cursor);
     void ws_setcolor(int i, int r, int g, int b);
     void ws_getcolor(int i, int *r, int *g, int *b);
     struct ws_bitmap *ws_createbitmap(int xsize, int ysize, char *bm);
-    unsigned char *ws_getbitmapdata(struct ws_bitmap *b);
+    char *ws_getbitmapdata(struct ws_bitmap *b);
     void ws_copybitmap(struct ws_bitmap *dst, int x1, int y1,
                        struct ws_bitmap *src, int xpos, int ypos, int xsize,
                        int ysize,
