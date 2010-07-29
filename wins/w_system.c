@@ -689,11 +689,6 @@ void ws_mousewarp(int x, int y) {
 }
 
 
-int ws_testforkey(void) {
-    return kbhit();
-}
-
-
 void ws_setdriver(const char *name) {
     GrSetDriver( (char *)name );
 }
