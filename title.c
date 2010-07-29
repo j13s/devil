@@ -61,7 +61,7 @@ typedef int INT;
 #define CREATE_ERROR -4
 
 FILE *giffile;
-unsigned char *gifmem, *gifpos;
+char *gifmem, *gifpos;
 int bad_code_count;
 
 int get_byte() {
@@ -399,7 +399,7 @@ WORD linewidth;
 }
 /* end of foreign source code */
 
-unsigned char *readgif(char *fname, unsigned char *palette) {
+char *readgif(const char *fname, unsigned char *palette) {
     unsigned char buffer[20];
 
 
@@ -423,7 +423,7 @@ unsigned char *readgif(char *fname, unsigned char *palette) {
         return NULL;
     }
 
-    if ( ( gifpos = gifmem = (unsigned char *)malloc( (long)640 * 480 ) ) ==
+    if ( ( gifpos = gifmem = (char *)malloc( (long)640 * 480 ) ) ==
         NULL ) {
         return NULL;
     }

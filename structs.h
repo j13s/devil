@@ -37,14 +37,9 @@
 
 #include "descdefs.h"
 
-/* Well, this is not so nice, but I need it. Perhaps you must set a flag
-   also. GNU-C will align characters to longs and savetool needs packed
-   structures (every type as long as in sizeof()) */
-#if defined (GNU_C) && defined (GO32)
- #define NONANSI_FLAG __attribute__ ( (packed) )
-#else
- #define NONANSI_FLAG
-#endif
+
+#define NONANSI_FLAG
+
 
 #ifndef M_PI
  #define M_PI            3.14159265358979323846

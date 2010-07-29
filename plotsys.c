@@ -663,7 +663,7 @@ void inc_timer(void) {
 }
 
 
-END_OF_FUNCTION(inc_timer);
+END_OF_FUNCTION(inc_timer)
 
 void psys_inittimer(void) {
     allegro_init();

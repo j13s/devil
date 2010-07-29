@@ -240,7 +240,6 @@ int askconfigdata(int *d_ver, char *devilpath, char *d1path, char *d2path,
                   int *resolution)
 {
     char x;
-    int start = 0;
 
 
     do {
@@ -269,8 +268,7 @@ int askconfigdata(int *d_ver, char *devilpath, char *d1path, char *d2path,
         printf("Q. Exit with saving changes.\n");
         printf("0. Exit without saving changes.\n\n");
         srand( clock() );
-        printf(q[start++ ==
-                 0 ? 0 : (int)( (double)(rand() - 1) / RAND_MAX * NUM_Q )]);
+        printf("?");
         scanf(" \n%c", &x);
         x = toupper(x);
 

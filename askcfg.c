@@ -28,9 +28,6 @@ const char *grfxdrvs[NUM_GRFXDRVS] = {
 };
 
 void makedospath(const char *oldpath, char *newpath) {
-    int i;
-
-
     ws_makepath(oldpath, newpath);
 }
 

@@ -890,7 +890,7 @@ int readasciilevel(char *filename, struct leveldata *ld) {
     }
 
     if (fscanf(lf, " %255s",
-               buffer) == NULL || strcmp(buffer, "DMB_BLOCK_FILE") != 0) {
+               buffer) == 0 || strcmp(buffer, "DMB_BLOCK_FILE") != 0) {
         waitmsg(TXT_WRONGBLKHEAD, filename, buffer);
         return 0;
     }

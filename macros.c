@@ -491,14 +491,24 @@ int insertmacro(struct leveldata *m, int connectnow, float scaling) {
     }
 
     /* inserting the doors, sdoors and producers and flickering lights */
-    checkmem( copylist( &l->doors, &m->doors, sizeof(struct door) ) );
+    if(!copylist( &l->doors, &m->doors, sizeof(struct door) ) ) {
+        fprintf(errf, "Could not allocate memory for doors.\n");
+        my_exit();
+    }
 
     for (n = m->doors.head; n->next != NULL; n = n->next) {
         n->d.d->tagged = NULL;
     }
 
-    checkmem( copylist( &l->sdoors, &m->sdoors, sizeof(struct sdoor) ) );
-    checkmem( copylist( &l->producers, &m->producers, sizeof(struct producer) ) );
+    if(!copylist( &l->sdoors, &m->sdoors, sizeof(struct sdoor) ) ) {
+        fprintf(errf, "Could not allocate memory for secret(?) doors.\n");
+        my_exit();
+    }
+    
+    if(!copylist( &l->producers, &m->producers, sizeof(struct producer) ) ) {
+        fprintf(errf, "Could not allocate memory for producers.\n");
+        my_exit();
+    }
 
     /* now insert all cubes */
     for (n = m->cubes.tail; n->prev != NULL; n = n->prev) {

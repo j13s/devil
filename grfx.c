@@ -257,7 +257,7 @@ const char *movemodes[mt_number] = {
     TXT_MOVEYOU, TXT_MOVEOBJ, TXT_MOVECURRENT,
     TXT_MOVETXT
 };
-unsigned char *movebuttondata[6];
+char *movebuttondata[6];
 int movebuttondsize[6];
 void drawallbuttons(struct w_window *w) {
     static struct w_b_choose modebutton, modifybutton, pigfile;
@@ -506,9 +506,8 @@ void initpalette(void) {
 
 void newpalette(unsigned char *palette) {
     int i, j, nc;
-    long colortable[4];
+    GrColor colortable[4];
     FILE *f;
-
 
     if (init_test & 2) {
         fprintf(errf, "New palette:\n");
@@ -572,7 +571,8 @@ void newpalette(unsigned char *palette) {
                            ws_ks_ctrl,
                            ws_ks_ctrl | ws_ks_alt);
         w_initkbstatcursor(alt_cursor, altcursor_xsize, altcursor_ysize,
-                           ALTCURSOR_HOT_X, ALTCURSOR_HOT_Y, colortable,
+                           ALTCURSOR_HOT_X, ALTCURSOR_HOT_Y, 
+                           (GrColorTableP)colortable,
                            ws_ks_alt,
                            ws_ks_ctrl | ws_ks_alt);
     }

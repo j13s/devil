@@ -84,7 +84,7 @@ int ws_initgrfx(int xres, int yres, int colors, const char *fontname) {
     GrMouseInit();
     GrMouseSetColors(255, 0);
     GrMouseDisplayCursor();
-    pixels[0] = 0xaa;
+    pixels[0] = 0x79;   /* Prevent compiler warning for now */
     pixels[1] = 0x55;
     ws_private.pat_box.gp_bitmap = pat_bm;
 /* value=_farpeekb(0x40,0x17);

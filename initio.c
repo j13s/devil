@@ -114,7 +114,7 @@ int readobjtype(FILE *f, struct objtype *ot) {
     int num;
 
 
-    if (fscanf(f, "%x%d", &ot->no, &num) != 2) {
+    if (fscanf(f, "%x%d", (unsigned int *)&ot->no, &num) != 2) {
         printf("Can't read objtype.\n");
         exit(2);
     }
@@ -218,7 +218,7 @@ int iniread(FILE *f, const char *t, ...) {
 
             case 'x':
 
-                if (fscanf( f, "%x", va_arg(alist, int *) ) != 1) {
+                if (fscanf( f, "%x", (unsigned int *)va_arg(alist, int *) ) != 1) {
                     printf("Can't read int.\n");
                     exit(2);
                 }

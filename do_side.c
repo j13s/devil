@@ -431,7 +431,7 @@ int dsc_dooranim(struct infoitem *i, void *d, struct node *n, int wallno,
                  int pntno,
                  int tagged)
 {
-    char no = *(char *)d;
+    int no = *(int *)d;
 
 
     my_assert(n != NULL && n->d.d->w != NULL && n->d.d->d != NULL

@@ -16,6 +16,8 @@
     along with this program (file COPYING); if not, write to the Free Software
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA. */
 
+#include <math.h>
+
 #include "structs.h"
 #include "plotdata.h"
 #include "plotsys.h"
@@ -252,8 +254,9 @@ struct render_point *pol_clip_pnts(struct polygon *p,
                 errf,
                 "Clip 3D %d (of %d no %ld prev %ld next %ld):\n" \
                 "  dist=%g sp=%g %g %g ep=%g %g %g\n", i,
-                p->num_pnts, rp - render_pnts, rp->prev - render_pnts,
-                rp->next - render_pnts,
+                p->num_pnts, (long)(rp - render_pnts),
+                (long)(rp->prev - render_pnts),
+                (long)(rp->next - render_pnts),
                 z_dist, v_s0[old_i], v_s1[old_i], v_s2[old_i], v_s0[i],
                 v_s1[i], v_s2[i]);
         }
@@ -395,8 +398,9 @@ struct render_point *pol_clip_pnts(struct polygon *p,
                 fprintf(
                     errf,
                     "Clip l %d (of %d no %ld prev %ld next %ld): sp=%g %g ep=%g %g\n",
-                    i, num_rp, rp - render_pnts, rp->prev - render_pnts,
-                    rp->next - render_pnts,
+                    i, num_rp, (long)(rp - render_pnts),
+                    (long)(rp->prev - render_pnts),
+                    (long)(rp->next - render_pnts),
                     sp.x[0], sp.x[1], ep.x[0], ep.x[1]);
             }
 
@@ -481,8 +485,9 @@ struct render_point *pol_clip_pnts(struct polygon *p,
                 fprintf(
                     errf,
                     "Clipping result all %d no %ld prev %ld next %ld): %g %g %lx\n",
-                    num_rp, rp - render_pnts, rp->prev - render_pnts,
-                    rp->next - render_pnts,
+                    num_rp, (long)(rp - render_pnts), 
+                    (long)(rp->prev - render_pnts),
+                    (long)(rp->next - render_pnts),
                     rp->x[0], rp->x[1], rp->light);
             }
 
@@ -889,7 +894,7 @@ void render_cube(int depth, struct node *from, struct node *cube,
                     fprintf(errf, "** %d Clipping&Recursion %d %d %d (%p)\n",
                             depth,
                             cube->no, w, j,
-                            cube->d.c->polygons[w * 2 + j]);
+                            (void *)cube->d.c->polygons[w * 2 + j]);
                     fflush(errf);
                 }
 
@@ -1038,7 +1043,7 @@ void render_cube(int depth, struct node *from, struct node *cube,
                     fprintf(errf, "** %d Clipping&Plotting %d %d %d (%p)\n",
                             depth,
                             cube->no, w, j,
-                            cube->d.c->polygons[w * 2 + j]);
+                            (void *)cube->d.c->polygons[w * 2 + j]);
                     fflush(errf);
                 }
 

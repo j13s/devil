@@ -588,8 +588,10 @@ void readstatus(char* lfname) {
     if (fscanf(f, "%g%g%g%g%g%g%g%hd%d%d%d%d", &view.gridlength,
                &view.maxconndist,
                &view.maxuserconnect, &view.illum_quarterway, &new_brightness,
-               &view.distcenter, &view.minclicksodist, &view.illum_minvalue,
-               &fb_savedata.xpos, &fb_savedata.ypos, &fb_savedata.xsize,
+               &view.distcenter, &view.minclicksodist,
+               (short int *)&view.illum_minvalue,
+               &fb_savedata.xpos, 
+               &fb_savedata.ypos, &fb_savedata.xsize,
                &fb_savedata.ysize)
         != 12) {
         ERRORREADCFG(f);
@@ -620,10 +622,11 @@ void readstatus(char* lfname) {
                &view.render,
                &corr_win1_xpos, &corr_win1_ypos, &corr_win2_xpos,
                &corr_win2_ypos,
-               &view.gamma_corr, &view.coord_axis, &view.flip_y_axis,
+               (short int *)&view.gamma_corr, &view.coord_axis,
+               &view.flip_y_axis,
                &view.draw_orig_lines, &view.littlebulbson,
-               &view.mouse_flipaxis,
-               &view.blinkinglightson, &view.timescale,
+               (short int *)&view.mouse_flipaxis,
+               (short int *)&view.blinkinglightson, &view.timescale,
                &view.warn_frameratetoosmall,
                &view.warn_illuminate) != 32) {
         ERRORREADCFG(f);
@@ -1076,7 +1079,7 @@ void printobjtypelists(struct infoitem *is, int num, int indent) {
         fprintf(errf, "%d %d %s %d %d %d %d %p\n", indent, i->type, i->txt,
                 i->offset,
                 i->length, i->sidefuncnr, i->numchildren,
-                i->children);
+                (void *)i->children);
 
         if (i->od != NULL) {
             for (a = 0; a < i->od->size; a++) {
@@ -1087,7 +1090,7 @@ void printobjtypelists(struct infoitem *is, int num, int indent) {
 
         for (a = 0; a < i->numchildren; a++) {
             fprintf(errf, " CHILD: %lx %d %p\n", i->itemchildren[a],
-                    i->numinchildren[a], i->children[a]);
+                    i->numinchildren[a], (void *)i->children[a]);
             printobjtypelists(i->children[a], i->numinchildren[a], indent + 1);
         }
     }
