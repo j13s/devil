@@ -41,7 +41,11 @@ void lac_read_cfg(void) {
             fgets(s, sizeof(s), cfgfile);
             s[79] = 0;
             for (int i = 0; i < 80; i++) {
-                s[i] = (char)tolower(s[i]);
+                if (s[i] == 0) {
+                    break;
+                }
+                
+                s[i] = (char)tolower((int)s[i]);
             }
 
 
