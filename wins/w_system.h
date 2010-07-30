@@ -7,6 +7,7 @@
 #define W_SYSTEM
 
 #include <grx20.h>
+#include <grxkeys.h>
 /* Some constants you must modify: */
 /* quite clear: */
 #define SYS_COMPILER_NAME "GNU-C 2.7.1 with libgrx 2.00beta"
@@ -98,6 +99,6 @@
     void ws_disablectrlc(void);
     int ws_testforkey(void);
     void ws_setdriver(const char *name);
-
+	GrKeyType ws_waitforkey(void);
 
 #endif

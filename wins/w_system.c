@@ -725,3 +725,8 @@ void ws_killcursor(ws_cursor *cursor) {
 }
 
 
+GrKeyType ws_waitforkey() {
+    return GrKeyRead();
+}
+
+

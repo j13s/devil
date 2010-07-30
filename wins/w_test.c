@@ -20,73 +20,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+
 #include "wins.h"
 #include "w_init.h"
 #include "w_event.h"
 
-extern FILE *errf;
-
-enum evcodes {
-    ec_credits, ec_changenumlock, ec_clickcube, ec_clickthing,
-    ec_togdrawthings, ec_togdrawcubes, ec_togdrawlines, ec_menucubes,
-    ec_menuint,
-    ec_menudoors, ec_menuthings, ec_nextthing, ec_prevthing, ec_nextcube,
-    ec_prevcube, ec_nextwall, ec_prevwall, ec_tag,
-    ec_togdrawdata, ec_pturnleft, ec_pturnright, ec_pturnup, ec_pturndown,
-    ec_incvisibility, ec_decvisibility, ec_inczoom, ec_deczoom,
-    ec_incmovefactor,
-    ec_decmovefactor, ec_moveforward, ec_movebackward, ec_moveleft,
-    ec_moveright, ec_moveup, ec_movedown, ec_bankleft, ec_turnup,
-    ec_bankright,
-    ec_turnright, ec_turndown, ec_turnleft, ec_incrotangle,
-    ec_decrotangle, ec_nextdoor, ec_prevdoor, ec_menuwalls,
-    ec_menucorners, ec_loadlevel, ec_savelevel, ec_clickdoor,
-    ec_togdrawdoors, ec_tagall, ec_beam, ec_help, ec_makemacro, ec_savemacro,
-    ec_choosemacro, ec_fastquit, ec_pmovedown, ec_pmoveup, ec_pmoveright,
-    ec_pmoveleft, ec_pmoveback, ec_pmoveforw, ec_nextpnt, ec_prevpnt,
-    ec_fitbitmap,
-    ec_insert, ec_chval_without_se, ec_pbankleft, ec_pbankright,
-    ec_scrollup, ec_scrolldown, ec_changedata, ec_incpmovefactor,
-    ec_decpmovefactor, ec_delete, ec_gridonoff, ec_decrgridsize,
-    ec_incrgridsize, ec_changevalue, ec_mmoveup, ec_mmovedown,
-    ec_connectcubes, ec_choosecube, ec_choosething, ec_choosedoor,
-    ec_chval_without_tag, ec_chval_without_all, ec_fastinsert, ec_setexit,
-    ec_deleteall, ec_gowall, ec_quit, ec_connectbitmaps, ec_togdrawgrid,
-    ec_incprotangle, ec_decprotangle, ec_aligntox, ec_aligntoy, ec_aligntoz,
-    ec_aligntonegx, ec_aligntonegy, ec_aligntonegz, ec_tagwholepnt,
-    ec_insscaled, ec_insfastscaled, ec_sidecube, ec_grow, ec_shrink,
-    ec_calctxts,
-    ec_togglebox, ec_toggleoldbox, ec_toggleboxmode, ec_tagwithmouse,
-    ec_lighshading, ec_usecubetag, ec_usesidetag, ec_playlevel,
-    ec_togdrawxtagged,
-    ec_plotfilledwall, ec_hogman, ec_deletespecial, ec_statistics,
-    ec_num_of_codes
-};
-
-void(*do_event[ec_num_of_codes]) (struct w_event *, int);
-
-void dec_quit(struct w_event *w, int ec) {
-    /* w->w_flags = w_f_end; */
+void dec_quit(int ec) {
+    exit(1);
 }
 
+enum evcodes {ec_quit, ec_num_of_codes};
 
-void main(void) {
+void(*do_event[ec_num_of_codes]) (int ec) = {dec_quit};
+
+extern FILE *errf;
+
+void my_exit() {
+    exit(2);
+}
+
+int main() {
+    char test_string[] = "1234567890";
     struct w_window *w1, *w2, iw1 = {
-        0, 100, 100, 200, 200, 200, 200, 0, "BLA", NULL,
+        0, 100, 100, 200, 200, 200, 200, 0, "BLA", 0,
         "Dies ist ein Helptext der automatisch formatiert wird"
     };
-    char *opt[5] = {
+    const char *opt[5] = {
         "Switch", "Only texture", "Shoot through", "Normal", "Door"
     };
     struct w_b_choose b_choose = {
-        0, 5, opt, NULL, NULL
+        0, 5, opt, 0, NULL, NULL
     };
     struct w_b_string b_string = {
-        0, 10, "1234567890", isdigit, NULL
+        0, 10, 0, 0, test_string, isdigit, NULL, NULL, NULL, NULL
     };
-    struct w_event we;
     FILE *mf;
-
 
     do_event[ec_quit] = dec_quit;
 
@@ -99,7 +67,7 @@ void main(void) {
         fprintf(errf, "No ini-file.\n");
         exit(5);
     }
-
+    
     if ( !w_initmenu(mf, do_event, ec_num_of_codes) ) {
         fprintf(errf, "Can't init menu.\n");
         exit(5);
@@ -130,7 +98,14 @@ void main(void) {
         exit(5);
     }
 
+    struct w_keycode ec_keycodes = {0, 0, 0, 0};
+        
+    w_handleuser(0, NULL, 0, NULL, 0, &ec_keycodes,
+                 do_event);
+
     w_closewins();
+    
+    return 0;
 }
 
 
