@@ -19,448 +19,122 @@
 
 #include "structs.h"
 #include <grx20.h>
-
-/* beginning of foreign source code */
-
-/* DECODE.C - An LZW decoder for GIF
- * Copyright (C) 1987, by Steven A. Bennett
- *
- * Permission is given by the author to freely redistribute and include
- * this code in any program as long as this credit is given where due.
- *
- * In accordance with the above, I want to credit Steve Wilhite who wrote
- * the code which this is heavily inspired by...
- *
- * GIF and 'Graphics Interchange Format' are trademarks (tm) of
- * Compuserve, Incorporated, an H&R Block Company.
- *
- * Release Notes: This file contains a decoder routine for GIF images
- * which is similar, structurally, to the original routine by Steve Wilhite.
- * It is, however, somewhat noticably faster in most cases.
- *
- */
-
-#define LOCAL static
-#define IMPORT extern
-
-#define FAST register
-
-typedef short WORD;
-typedef unsigned short UWORD;
-typedef char TEXT;
-typedef unsigned char UTINY;
-typedef long LONG;
-typedef unsigned long ULONG;
-typedef int INT;
-
-#define OUT_OF_MEMORY -10
-#define BAD_CODE_SIZE -20
-#define READ_ERROR -1
-#define WRITE_ERROR -2
-#define OPEN_ERROR -3
-#define CREATE_ERROR -4
-
-FILE *giffile;
-char *gifmem, *gifpos;
-int bad_code_count;
-
-int get_byte() {
-    return fgetc(giffile);
-}
+#include <gif_lib.h>
 
 
-int out_line(UTINY *p, int len) {
-    memcpy(gifpos, p, len);
-    gifpos += len;
-    return 1;
-}
-
-
-#define MAX_CODES   4095
-
-/* Static variables */
-LOCAL WORD curr_size;                     /* The current code size */
-LOCAL WORD clear;                         /* Value for a clear code */
-LOCAL WORD ending;                        /* Value for a ending code */
-LOCAL WORD newcodes;                      /* First available code */
-LOCAL WORD top_slot;                      /* Highest code for current size */
-LOCAL WORD slot;                          /* Last read code */
-
-/* The following static variables are used for seperating out codes */
-LOCAL WORD navail_bytes = 0;              /* # bytes left in block */
-LOCAL WORD nbits_left = 0;                /* # bits left in current byte */
-LOCAL UTINY b1;                           /* Current byte */
-LOCAL UTINY byte_buff[257];               /* Current block */
-LOCAL UTINY *pbytes;                      /* Pointer to next byte in block */
-
-LOCAL LONG code_mask[13] = {
-    0, 0x0001, 0x0003, 0x0007, 0x000F, 0x001F, 0x003F, 0x007F, 0x00FF,
-    0x01FF, 0x03FF, 0x07FF, 0x0FFF
-};
-
-/* This function initializes the decoder for reading a new image. */
-LOCAL WORD init_exp(WORD size) {
-    curr_size = size + 1;
-    top_slot = 1 << curr_size;
-    clear = 1 << size;
-    ending = clear + 1;
-    slot = newcodes = ending + 1;
-    navail_bytes = nbits_left = 0;
-    return 0;
-}
-
-
-/* get_next_code()
- * - gets the next code from the GIF file.  Returns the code, or else
- * a negative number in case of file errors... */
-LOCAL WORD get_next_code() {
-    WORD i, x;
-    ULONG ret;
-
-
-    if (nbits_left == 0) {
-        if (navail_bytes <= 0) {
-
-            /* Out of bytes in current block, so read next block
-             */
-            pbytes = byte_buff;
-
-            if ( ( navail_bytes = get_byte() ) < 0 ) {
-                return (navail_bytes);
-            }
-            else if (navail_bytes) {
-                for (i = 0; i < navail_bytes; ++i) {
-                    if ( ( x = get_byte() ) < 0 ) {
-                        return (x);
-                    }
-
-                    byte_buff[i] = x;
-                }
-            }
+/* Read a GIF file and return a GrContext with the data.  Written to display
+   the titlex.gif that comes with Devil 2.2lc2.
+   
+   Returns NULL when an error occurs. */
+GrContext *readgif(const char *fname) {
+    /* Hold the information needed from the GIF file, such as width, height,
+       palette, and the bitmap data */
+    GifFileType *gif;
+    
+    /* If an error occurred opening the GIF, explain the error and have giflib's
+       error handler tell the user what went wrong.  Then return NULL*/
+    if ((gif = DGifOpenFileName(fname)) == NULL) {
+        fprintf(errf, "Could not open %s.  Does the file exist?", fname);
+        PrintGifError();
+        
+        return NULL;
+    }
+    
+    /* If something went wrong trying to read data from the GIF file, then let
+       the user know and exit. */
+    if (DGifSlurp(gif) == GIF_ERROR) {
+        fprintf(errf, "There was a problem loading the data from %s\n", fname);
+        fprintf(errf, "Is the file intact?\n");
+        
+        return NULL;
+    }
+    
+    /* Stores the 256 color palette from the GIF.  Each pixel has a value that
+       ranges from 0-255, and this is the lookup table for the RGB values. */
+    GifColorType *palette;
+    
+    /* If the user tried to replace titlex.gif with something else, let them
+       know that Devil didn't like that. */
+    if ((palette = gif->SColorMap[0].Colors) == NULL) {
+        fprintf(errf, "%s is not a 256 color GIF.\n", fname);
+        return NULL;
+    }
+    
+    /* The 8-bit values that make up the bitmap. */
+    unsigned char *rgb = gif->SavedImages[0].RasterBits;
+    
+    /* The drawing space for the splashscreen. */
+    GrContext *splashscreen;
+    
+    if ((splashscreen = GrCreateContext(gif->SWidth, gif->SHeight, NULL, NULL))
+        == NULL) {
+        fprintf(errf, "Error allocating memory for the splashscreen.\n");
+        return NULL;
+    }
+    
+    /* Transfer the data in the GIF to the newly created context */
+    GrSetContext(splashscreen);    
+    
+    /* Iterate over each row of the GIF in memory and place the color values in
+       the corresponding row of the context */
+    for (int row = 0; row < gif->SHeight; row++) {
+        /* Stores the RGB values for the context */
+        GrColor *grpixels;
+        
+        checkmem(grpixels = malloc(sizeof(GrColor) * gif->SWidth));
+        
+        /* Grab a pixel from the current GIF file's row and translate it to
+           GRX's color encoding */
+        for (int col = 0; col < gif->SWidth; col++) {
+            /* Since the bitmap is stored linearly, perform the calculation to
+               find the pixel at row x column.  The offset is then used to grab
+               the lookup value from the ColorMap */
+            int index = rgb[row * gif->SWidth + col];    
+            
+            /* Use the calulated index to get the RGB values and create the
+               GrColor. */
+            GifByteType red   = palette[index].Red;
+            GifByteType green = palette[index].Green;
+            GifByteType blue  = palette[index].Blue;
+            
+            grpixels[col] = GrAllocColor(red, green, blue);
         }
-
-        b1 = *pbytes++;
-        nbits_left = 8;
-        --navail_bytes;
+        
+        /* Put the row of created GrColors onto the current context. Loop over
+           each row to build the whole image. */
+        GrPutScanline(0, gif->SWidth - 1, row, grpixels, GrWRITE);
+        
+        free(grpixels);
     }
-
-    ret = b1 >> (8 - nbits_left);
-
-    while (curr_size > nbits_left) {
-        if (navail_bytes <= 0) {
-
-            /* Out of bytes in current block, so read next block
-             */
-            pbytes = byte_buff;
-
-            if ( ( navail_bytes = get_byte() ) < 0 ) {
-                return (navail_bytes);
-            }
-            else if (navail_bytes) {
-                for (i = 0; i < navail_bytes; ++i) {
-                    if ( ( x = get_byte() ) < 0 ) {
-                        return (x);
-                    }
-
-                    byte_buff[i] = x;
-                }
-            }
-        }
-
-        b1 = *pbytes++;
-        ret |= b1 << nbits_left;
-        nbits_left += 8;
-        --navail_bytes;
+    
+    /* Let the user know something went wrong closing the file. */
+    if(DGifCloseFile(gif) == GIF_ERROR) {
+        fprintf(errf, "Something went wrong closing %s\n", fname);
     }
-
-    nbits_left -= curr_size;
-    ret &= code_mask[curr_size];
-    return ( (WORD)(ret) );
+    
+    return splashscreen;
 }
 
-
-/* The reason we have these seperated like this instead of using
- * a structure like the original Wilhite code did, is because this
- * stuff generally produces significantly faster code when compiled...
- * This code is full of similar speedups...  (For a good book on writing
- * C for speed or for space optomisation, see Efficient C by Tom Plum,
- * published by Plum-Hall Associates...)
- */
-LOCAL UTINY stack[MAX_CODES + 1];            /* Stack for storing pixels */
-LOCAL UTINY suffix[MAX_CODES + 1];           /* Suffix table */
-LOCAL UWORD prefix[MAX_CODES + 1];           /* Prefix linked list */
-
-/* WORD decoder(linewidth)
- *    WORD linewidth;               * Pixels per line of image *
- *
- * - This function decodes an LZW image, according to the method used
- * in the GIF spec.  Every *linewidth* "characters" (ie. pixels) decoded
- * will generate a call to out_line(), which is a user specific function
- * to display a line of pixels.  The function gets it's codes from
- * get_next_code() which is responsible for reading blocks of data and
- * seperating them into the proper size codes.  Finally, get_byte() is
- * the global routine to read the next byte from the GIF file.
- *
- * It is generally a good idea to have linewidth correspond to the actual
- * width of a line (as specified in the Image header) to make your own
- * code a bit simpler, but it isn't absolutely necessary.
- *
- * Returns: 0 if successful, else negative.  (See ERRS.H)
- *
- */
-
-WORD decoder(linewidth)
-WORD linewidth;
-
-
-{
-    FAST UTINY *sp, *bufptr;
-    UTINY *buf;
-    FAST WORD code, fc, oc, bufcnt;
-    WORD c, size, ret;
-
-    /* Initialize for decoding a new image...
-     */
-    if ( ( size = get_byte() ) < 0 ) {
-        return (size);
-    }
-
-    if (size < 2 || 9 < size) {
-        return (BAD_CODE_SIZE);
-    }
-
-    init_exp(size);
-
-    /* Initialize in case they forgot to put in a clear code.
-     * (This shouldn't happen, but we'll try and decode it anyway...)
-     */
-    oc = fc = 0;
-
-    /* Allocate space for the decode buffer
-     */
-    if ( ( buf = (UTINY *)malloc(linewidth + 1) ) == NULL ) {
-        return (OUT_OF_MEMORY);
-    }
-
-    /* Set up the stack pointer and decode buffer pointer
-     */
-    sp = stack;
-    bufptr = buf;
-    bufcnt = linewidth;
-
-    /* This is the main loop.  For each code we get we pass through the
-     * linked list of prefix codes, pushing the corresponding "character" for
-     * each code onto the stack.  When the list reaches a single "character"
-     * we push that on the stack too, and then start unstacking each
-     * character for output in the correct order.  Special handling is
-     * included for the clear code, and the whole thing ends when we get
-     * an ending code.
-     */
-    while ( ( c = get_next_code() ) != ending ) {
-
-        /* If we had a file error, return without completing the decode
-         */
-        if (c < 0) {
-            free(buf);
-            return (0);
-        }
-
-        /* If the code is a clear code, reinitialize all necessary items.
-         */
-        if (c == clear) {
-            curr_size = size + 1;
-            slot = newcodes;
-            top_slot = 1 << curr_size;
-
-            /* Continue reading codes until we get a non-clear code
-             * (Another unlikely, but possible case...)
-             */
-            while ( ( c = get_next_code() ) == clear ) {
-                ;
-            }
-
-            /* If we get an ending code immediately after a clear code
-             * (Yet another unlikely case), then break out of the loop.
-             */
-            if (c == ending) {
-                break;
-            }
-
-            /* Finally, if the code is beyond the range of already set codes,
-             * (This one had better NOT happen...  I have no idea what will
-             * result from this, but I doubt it will look good...) then set it
-             * to color zero.
-             */
-            if (c >= slot) {
-                c = 0;
-            }
-
-            oc = fc = c;
-
-            /* And let us not forget to put the char into the buffer... And
-             * if, on the off chance, we were exactly one pixel from the end
-             * of the line, we have to send the buffer to the out_line()
-             * routine...
-             */
-            *bufptr++ = c;
-
-            if (--bufcnt == 0) {
-                if ( ( ret = out_line(buf, linewidth) ) < 0 ) {
-                    free(buf);
-                    return (ret);
-                }
-
-                bufptr = buf;
-                bufcnt = linewidth;
-            }
-        }
-        else {
-
-            /* In this case, it's not a clear code or an ending code, so
-             * it must be a code code...  So we can now decode the code into
-             * a stack of character codes. (Clear as mud, right?)
-             */
-            code = c;
-
-            /* Here we go again with one of those off chances...  If, on the
-             * off chance, the code we got is beyond the range of those already
-             * set up (Another thing which had better NOT happen...) we trick
-             * the decoder into thinking it actually got the last code read.
-             * (Hmmn... I'm not sure why this works...  But it does...)
-             */
-            if (code >= slot) {
-                if (code > slot) {
-                    ++bad_code_count;
-                }
-
-                code = oc;
-                *sp++ = fc;
-            }
-
-            /* Here we scan back along the linked list of prefixes, pushing
-             * helpless characters (ie. suffixes) onto the stack as we do so.
-             */
-            while (code >= newcodes) {
-                *sp++ = suffix[code];
-                code = prefix[code];
-            }
-
-            /* Push the last character on the stack, and set up the new
-             * prefix and suffix, and if the required slot number is greater
-             * than that allowed by the current bit size, increase the bit
-             * size.  (NOTE - If we are all full, we *don't* save the new
-             * suffix and prefix...  I'm not certain if this is correct...
-             * it might be more proper to overwrite the last code...
-             */
-            *sp++ = code;
-
-            if (slot < top_slot) {
-                suffix[slot] = fc = code;
-                prefix[slot++] = oc;
-                oc = c;
-            }
-
-            if (slot >= top_slot) {
-                if (curr_size < 12) {
-                    top_slot <<= 1;
-                    ++curr_size;
-                }
-            }
-
-            /* Now that we've pushed the decoded string (in reverse order)
-             * onto the stack, lets pop it off and put it into our decode
-             * buffer...  And when the decode buffer is full, write another
-             * line...
-             */
-            while (sp > stack) {
-                *bufptr++ = *(--sp);
-
-                if (--bufcnt == 0) {
-                    if ( ( ret = out_line(buf, linewidth) ) < 0 ) {
-                        free(buf);
-                        return (ret);
-                    }
-
-                    bufptr = buf;
-                    bufcnt = linewidth;
-                }
-            }
-        }
-    }
-
-    ret = 0;
-
-    if (bufcnt != linewidth) {
-        ret = out_line( buf, (linewidth - bufcnt) );
-    }
-
-    free(buf);
-    return (ret);
-}
-/* end of foreign source code */
-
-char *readgif(const char *fname, unsigned char *palette) {
-    unsigned char buffer[20];
-
-
-    if ( ( giffile = fopen(fname, "rb") ) == NULL ) {
-        return NULL;
-    }
-
-    if (fread(buffer, 1, 13, giffile) != 13) {
-        return NULL;
-    }
-
-    if (fread(palette, 3, 256, giffile) != 256) {
-        return NULL;
-    }
-
-    if (fread(buffer, 1, 10, giffile) != 10) {
-        return NULL;
-    }
-
-    if (buffer[0] != ',') {
-        return NULL;
-    }
-
-    if ( ( gifpos = gifmem = (char *)malloc( (long)640 * 480 ) ) ==
-        NULL ) {
-        return NULL;
-    }
-
-    if (decoder(640) < 0) {
-        free(gifmem);
-        return NULL;
-    }
-    else {
-        return gifmem;
-    }
-}
-
-
+/* Draws the titlex.gif as a splashscreen.  Returns 1 on success, 0 on failure.
+   Will happily chug along loading Devil if there is a problem loading the
+   image. */
 int titlescreen(void) {
-    unsigned char palette[256 * 3];
-    char *gifplanes[4];
+    /* Holds the data for the titlescreen. */
     GrContext *gifpic;
-    int i;
 
-
-    if ( ( gifplanes[0] = readgif("titlex.gif", palette) ) == NULL ) {
-        printf("Can't load Title Screen.\n");
+    /* If there an an error loading the titlescreen, let the user know. */
+    if ( (gifpic = readgif("titlex.gif")) == NULL ) {
+        fprintf(errf, "Devil encountered an error loading the title screen.\n");
         return 0;
     }
 
-    for (i = 0; i < 256; i++) {
-        GrFreeColor(i);
-        GrSetColor(i, palette[i * 3], palette[i * 3 + 1], palette[i * 3 + 2]);
-    }
-
-    if ( ( gifpic = GrCreateContext(640, 480, gifplanes, NULL) ) != NULL ) {
-        GrBitBlt(NULL, 0, 0, gifpic, 0, 0, 639, 479, GrWRITE);
-        GrDestroyContext(gifpic);
-    }
-
-    free(gifmem);
+    /* Draw the titlescreen. */
+    GrSetContext(NULL);
+    GrBitBlt(NULL, 0, 0, gifpic, 0, 0, 639, 479, GrWRITE);
+    
+    /* Free memory allocated for the titlescreen. */
+    GrDestroyContext(gifpic);
+    
     return 1;
 }
 

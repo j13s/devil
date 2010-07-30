@@ -1,3 +1,5 @@
+THIS VERSION OF DEVIL IS UNSTABLE AND WILL NOT WORK YET.
+
 This is an in progress port of Devil from DOS to Linux.  There are 
 specific paths to libraries in the Makefiles that will cause errors.
 Change these to point to your libraries.
@@ -6,6 +8,7 @@ Depends:
 - Allegro 4.2.2
 - GRX 2.4.8
 - libtap (for testing, can be grabbed from CCAN)
+- giflib
 
 To use Devil:
 
