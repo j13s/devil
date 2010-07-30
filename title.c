@@ -75,8 +75,8 @@ GrContext *readgif(const char *fname) {
     /* Transfer the data in the GIF to the newly created context */
     GrSetContext(splashscreen);    
     
-    /* Iterate over each row of the GIF in memory and place the color values in
-       the corresponding row of the context */
+    /* Iterate over each row of the GIF in memory and place the color values
+       in the corresponding row of the context */
     for (int row = 0; row < gif->SHeight; row++) {
         /* Stores the RGB values for the context */
         GrColor *grpixels;
@@ -87,8 +87,8 @@ GrContext *readgif(const char *fname) {
            GRX's color encoding */
         for (int col = 0; col < gif->SWidth; col++) {
             /* Since the bitmap is stored linearly, perform the calculation to
-               find the pixel at row x column.  The offset is then used to grab
-               the lookup value from the ColorMap */
+               find the pixel at row x column.  The offset is then used to
+               grab the lookup value from the ColorMap */
             int index = rgb[row * gif->SWidth + col];    
             
             /* Use the calulated index to get the RGB values and create the
@@ -115,16 +115,17 @@ GrContext *readgif(const char *fname) {
     return splashscreen;
 }
 
-/* Draws the titlex.gif as a splashscreen.  Returns 1 on success, 0 on failure.
-   Will happily chug along loading Devil if there is a problem loading the
-   image. */
+/* Draws the titlex.gif as a splashscreen.  Returns 1 on success, 0 on
+   failure.  Will happily chug along loading Devil if there is a problem
+   loading the image. */
 int titlescreen(void) {
     /* Holds the data for the titlescreen. */
     GrContext *gifpic;
 
     /* If there an an error loading the titlescreen, let the user know. */
     if ( (gifpic = readgif("titlex.gif")) == NULL ) {
-        fprintf(errf, "Devil encountered an error loading the title screen.\n");
+        fprintf(
+            errf, "Devil encountered an error loading the title screen.\n");
         return 0;
     }
 
