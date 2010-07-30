@@ -80,7 +80,6 @@ int ws_initgrfx(int xres, int yres, int colors, const char *fontname) {
         return 0;
     }
 
-    GrMouseEventMode(0);
     GrMouseInit();
     GrMouseSetColors(255, 0);
     GrMouseDisplayCursor();
