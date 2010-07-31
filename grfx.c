@@ -280,7 +280,7 @@ void drawallbuttons(struct w_window *w) {
                                      b_changemovemode;
 
     if (init.d_ver >= d2_10_reg) {
-        pignames = ws_getallfilenames(init.pigpaths[init.d_ver], "PIG",
+        pignames = ws_getallfilenames(init.pigpaths[init.d_ver], "pig",
                                       &pigfile.num_options);
         checkmem( pigfile.options =
                      MALLOC(sizeof(char *) * pigfile.num_options) );
