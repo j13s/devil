@@ -455,8 +455,8 @@ int cntrlcursor_xsize, cntrlcursor_ysize, altcursor_xsize, altcursor_ysize;
 #define CNTRLCURSOR_HOT_Y 0
 #define ALTCURSOR_HOT_X 0
 #define ALTCURSOR_HOT_Y 0
-char *control_cursor;
-char *alt_cursor;
+char *control_cursor = NULL;
+char *alt_cursor     = NULL;
 int cursor_initialized;
 void initpalette(void) {
     int i;
@@ -624,16 +624,12 @@ void initgrph(int showtitle) {
     cntrlcursor_ysize = altcursor_ysize = w_titlebarheight();
     cntrlcursor_xsize = (ws_pixstrlen(TXT_TAG) + 2 + 3) / 4 * 4;
     altcursor_xsize = (ws_pixstrlen(TXT_INFO) + 2 + 3) / 4 * 4;
-    checkmem( control_cursor = CALLOC(cntrlcursor_xsize, cntrlcursor_ysize) );
-    checkmem( alt_cursor = CALLOC(altcursor_xsize, altcursor_ysize) );
     cursor = ws_createbitmap(cntrlcursor_xsize, cntrlcursor_ysize,
                              control_cursor);
     ws_bmdrawtext(cursor, 1, 0, cntrlcursor_xsize, TXT_TAG, 1, 0);
-    control_cursor[0] = 1;
     ws_freebitmap(cursor);
     cursor = ws_createbitmap(altcursor_xsize, altcursor_ysize, alt_cursor);
     ws_bmdrawtext(cursor, 1, 0, altcursor_xsize, TXT_INFO, 1, 0);
-    alt_cursor[0] = 1;
     ws_freebitmap(cursor);
     cursor_initialized = 1;
     checkmem( pig.txt_buffer = MALLOC(64 * 64) );
