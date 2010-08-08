@@ -33,7 +33,7 @@
 #include "config.h"
 
 #include "lac_cfg.h"
-#include "linux_config.h"
+#include "linux.h"
 
 #define CFG_FNAME "PLAY%.2d"
 #define CFG_CURNAME "TMPDEVIL"

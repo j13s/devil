@@ -35,7 +35,7 @@
 #include "readlvl.h"
 
 #include "lac_cfg.h"
-#include "linux_config.h"
+#include "linux.h"
 
 enum descent loading_level_version;
 
