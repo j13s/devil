@@ -27,7 +27,7 @@
 #include "w_tools.h"
 
 #include <dirent.h>
-#include "../linux_config.h"
+#include "linux.h"
 
 #define DEFAULT_FONT "wins.fnt"
 
