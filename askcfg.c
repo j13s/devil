@@ -43,7 +43,9 @@ int writeconfig(int olddata) {
     int i, d_ver, grfxdriver, resolution;
     FILE *cfgfile;
 
-
+    /* Default to the X11 driver */
+    grfxdriver = 0;
+    
     if (olddata) {
         if ( ( h = getenv("DEVILPATH") ) != NULL ) {
             makedospath(h, devilpath);
