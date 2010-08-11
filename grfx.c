@@ -505,8 +505,8 @@ void initpalette(void) {
 
 
 void newpalette(unsigned char *palette) {
-    int i, j, nc;
-    GrColor colortable[4];
+    int i, j;
+    GrColor colortable[4], nc;
     FILE *f;
 
     if (init_test & 2) {

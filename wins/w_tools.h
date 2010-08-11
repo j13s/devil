@@ -19,5 +19,5 @@ int w_ywinspacecoord(int y);
 int w_xscrspacecoord(int x);
 int w_yscrspacecoord(int y);
 char *w_copystr(const char *str);
-int w_makecolor(int r, int g, int b);
+GrColor w_makecolor(int r, int g, int b);
 int w_titlebarheight(void);

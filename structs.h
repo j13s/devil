@@ -586,7 +586,7 @@ struct viewdata {
                      in a cube */
     float minweirdwall; /* the min cos(angle) of lines in a wall */
     /* some other things */
-    int color[USEDCOLORS];
+    GrColor color[USEDCOLORS];
     unsigned char *lightcolors;
     enum tagtypes currmode;
     enum movetypes movemode;

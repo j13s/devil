@@ -83,7 +83,7 @@ struct notebook {
     int initialized;
     int print_msg;
     int xres, yres, colors;
-    int colindex[cv_number];
+    GrColor colindex[cv_number];
     struct bounds winspace;
     struct wi_window *cur_win;
     struct list windows;

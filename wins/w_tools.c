@@ -138,25 +138,9 @@ char *w_copystr(const char *str) {
 }
 
 
-/* Search the color index which has the 'nearest' color to r,g,b */
-int w_makecolor(int r, int g, int b) {
-    int i, n, dist, mdist = 255 + 255 + 255 + 1, rn, bn, gn;
-
-
-    for (n = 0, i = 0; n < 256; n++) {
-        ws_getcolor(n, &rn, &gn, &bn);
-        dist = abs(r - rn) + abs(g - gn) + abs(b - bn);
-
-        if (dist < mdist) {
-            i = n;
-
-            if ( (mdist = dist) == 0 )                       {
-                break;
-            }
-        }
-    }
-
-    return i;
+/* Return the GrColor with the selected red, green and blue components. */
+GrColor w_makecolor(int r, int g, int b) {
+    return GrAllocColor(r, g, b);
 }
 
 
