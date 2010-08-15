@@ -23,7 +23,7 @@ endif
 #	rem strip $<
 #	coff2exe $<
 d.exe: $(OBJ) 
-	gcc -L$(HOME)/lib @linkx
+	gcc -L$(HOME)/lib -z muldefs @linkx
 
 compile: $(OBJ)
 %.o: %.c
