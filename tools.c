@@ -581,8 +581,18 @@ void turn(struct point *es, struct point *ee, int i, int j, int k,
 }
 
 
-/* must be a function because of l (changes in the calculation)
-   prototype in structs.h */
+
+/*! @brief Normalizes the vector at point p.
+ *
+ *  @param[in,out] p A pointer to a point struct.
+ *
+ *  The vector at point p is normalized and the result is stored in the point 
+ *  p.
+ *
+ *  Original comment:
+ *  must be a function because of l (changes in the calculation)
+ *  prototype in structs.h.
+ */
 void normalize(struct point *p) {
     float l = LENGTH(p);
 

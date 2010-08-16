@@ -29,37 +29,75 @@
 #include "do_event.h"
 #include "askcfg.h"
 
+/* Descent and Descent 2 level file extensions */
 const char *extnames[desc_number] = {
-    "SDL", "RDL", "RDL", "SL2", "RL2", "RL2", "RL2"
+    "SDL",  /* Descent Demo */
+    "RDL",  /* Descent 1.0 */
+    "RDL",  /* Descent 1.4 */
+    "SL2",  /* Descent 2 Interactive Demo */
+    "RL2",  /* Descent 2 1.0 */
+    "RL2",  /* Descent 2 1.1 */
+    "RL2"   /* Descent 2 1.2 (Vertigo) */
 };
+
+/* INI files for the option windows (Cube, edge, etc.) */
 #ifdef GER
     const char *ininames[desc_number] = {
         NULL, "d1r_g.ini", "d1r_g.ini", NULL, "d2r_g_10.ini", "d2r_g_11.ini",
         "d2r_g_11.ini"
     };
 #else
+    /*! @var ininames
+     *  @brief Lists the INI files for the differing versions of Descent and
+     *         Descent 2.
+     *
+     *  The @ref descent enum aligns with the indices of the ininames array.
+     *  If a Descent version is not editable, then a NULL char pointer is
+     *  stored at that position in the array.
+     */
     const char *ininames[desc_number] = {
         NULL, "d1reg.ini", "d1reg.ini", NULL, "d2reg_10.ini", "d2reg_11.ini",
         "d2reg_11.ini"
     };
 #endif
+
+
+/* Decoded Descent version strings */
+/*! @var vernames
+    @brief Strings that fully describe the encoded Descent version.
+
+    Also aligns with the @ref descent enum.
+ */
 const char *vernames[desc_number] = {
-    "Descent 1 V1.0 shareware", "Descent 1 V1.0 registered",
-    "Descent 1 V1.4 (or higher) registered", "Descent 2 V1.0 shareware",
-    "Descent 2 V1.0 registered", "Descent 2 V1.1 registered",
+    "Descent 1 V1.0 shareware",
+    "Descent 1 V1.0 registered",
+    "Descent 1 V1.4 (or higher) registered",
+    "Descent 2 V1.0 shareware",
+    "Descent 2 V1.0 registered",
+    "Descent 2 V1.1 registered",
     "Descent 2 V1.2 (or higher) registered"
 };
 
+/* Stores information on program presentation and rendering details. */
 struct viewdata view;
+/* Store paths to different files, the Descent version, etc. */
 struct initdata init;
+/* Store textures from the current PIG file. */
 struct pigdata pig;
+/* Store the palette for the current level. */
 struct palette palettes[NUM_PALETTES];
+/* Store info about the path, full level name, in or outside of level, ...  */
 struct leveldata *l;
 
+
+/* Called if there is an assertion error. */
 void my_exit(void) {
+    /* I guess this is done to prevent savestatus from getting called multiple
+       times in savestatus()? */
     static int no_loop = 0;
 
 
+    /* Try to save the editor's status. */
     if (!no_loop) {
         no_loop = 1;
         fprintf(errf, "Severe bug. Trying to save current work...");
@@ -67,6 +105,7 @@ void my_exit(void) {
         fprintf(errf, "Done. Maybe you are a lucky guy.\n");
     }
 
+    /* Go back to the console and explain the error. */
     ws_textmode();
     releasetimer();
     printf("Severe bug.\n");
@@ -136,19 +175,28 @@ void my_abort(int sigcode) {
 }
 
 
+/* Encodes the command line parameters. */
 enum cmdline_params {
     clp_new, clp_notitle, clp_config, num_cmdlineparams
 };
+
+/* The command line parameters. */
 const char *cmdline_switches[num_cmdlineparams] = {
-    "NEW", "NOTITLE",
-    "CONFIG"
+    "NEW",      /* Write a new Devil configuation file? */
+    "NOTITLE",  /* Skip the splash screen. */
+    "CONFIG"    /* Configure Devil and exit without launching the editor. */
 };
+
+/* Strings for the usage statement if a bad parameter is passed to Devil. */
 const char *cmdline_txts[num_cmdlineparams] = {
     TXT_CMDSTARTNEW, TXT_CMDDONTSHOWTITLE, TXT_CMDCONFIG
 };
+
+
 int main(int argn, char *argc[]) {
-    int i, j, title = 1;
-    long int with_cfg = 1, reconfig = 0;
+    int i, j, title = 1;    /* Show splash screen if title is true. */
+    long int with_cfg = 1,
+             reconfig = 0;
     char buffer[128];
     char* load_file_name = NULL;
 
@@ -168,35 +216,55 @@ int main(int argn, char *argc[]) {
 
     errf = stdout;
 
+    /* Process the command line arguments. */
     for (j = 1; j < argn; j++) {
         sscanf(argc[j], " %s", buffer);
 
+        /* Parameters may be uppercase or lowercase. */
         for (i = 0; i < strlen(buffer); i++) {
             buffer[i] = toupper(buffer[i]);
         }
 
+        /* Check to see if this is a parameter by looking at the first
+           character.  If it is a forward-slash, it is a parameter.  If
+           not then it is a level to be loaded by the editor and the filename
+           is stored in load_file_name.
+           
+           Only one parameter can be used.  Once a match is found, the search
+           for the rest stops. */
         if (buffer[0] == '/') {
             for (i = 0; i < num_cmdlineparams; i++) {
+                /* If the parameter passed at runtime doesn't match a known
+                   parameter, then skip it and move on to the next one. */
                 if (strcmp(&buffer[1], cmdline_switches[i]) == 0) {
                     switch (i) {
+                        /* Start Devil with a new configuration file? */
                         case clp_new:
                             with_cfg = 0;
                             break;
-
+                            
+                        /* Skip the splash screen if NOTITLE is specified. */
                         case clp_notitle:
                             printf("Devil is sponsored by PC Player!\n");
                             title = 0;
                             break;
 
+                        /* If CONFIG is passed, then launch the configuration
+                           menu and exit to the command line after Devil is
+                           done being configured. */
                         case clp_config:
                             reconfig = 1;
                             break;
                     }
 
+                    /* Break out of the for-loop once a match is found. */
                     break;
                 }
             }
-
+            
+            /* If a parameter was passed that didn't match any of the known
+               parameters, then print the usage statement for the user and
+               exit. */
             if (i == num_cmdlineparams) {
                 printf(TXT_CMDUNKNOWNPARAM, &buffer[1]);
 
@@ -208,6 +276,7 @@ int main(int argn, char *argc[]) {
             }
         }
         else {
+            /* The configuration file to load? */
             load_file_name = argc[j];
         }
     }

@@ -7,7 +7,18 @@ const char *grfxdescription[NUM_GRFXDRVS] = {
     "Cirrus Logic chipset; choose if you have trouble with VESA.",
     "ATI Mach 64; choose if you have trouble with VESA."
 };
+
+/*! @def NUM_RESOLUTIONS
+ *  Defines the number of X,Y resolution pairs.
+ */
 #define NUM_RESOLUTIONS 4
+/*! \var res_xysize
+    \brief An array of int arrays that store the possible resolutions for
+           Devil.
+
+    Stores NUM_RESOLUTIONS 2 member int array that hold the X and Y screen
+    resolutions.
+ */
 int res_xysize[NUM_RESOLUTIONS][2] =
 { { 640, 480 }, { 800, 600 }, { 1024, 768 }, { 1280, 1024 } };
 

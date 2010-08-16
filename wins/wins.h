@@ -26,9 +26,16 @@ enum keycode_flags {
     w_kf_exit = 1
 };
 
+/*! @struct w_keycode wins.h
+ *  @brief  Stores the information needed to relate an event to a keystroke?
+ *
+ *  
+ */
 struct w_keycode
 {
-    int kbstat, key, event;
+    int kbstat, /*!< Status of the modifier keys? */
+        key,    /*!< Key to hit to activate the event? */
+        event;  /*!< Devil event code? */
     enum keycode_flags flags;
 };
 

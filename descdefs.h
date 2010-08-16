@@ -1,4 +1,9 @@
 /* Differences between Descent versions */
+
+/*! @enum descent
+ *
+ *  Encodes the Descent and Descent 2 versions.
+ */
 enum descent {
     d1_10_sw, d1_10_reg, d1_14_reg, d2_10_sw, d2_10_reg,
     d2_11_reg, d2_12_reg, desc_number

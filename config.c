@@ -785,11 +785,14 @@ const char *txtgroup_txt[11] = {
     NULL, TXT_TOP, TXT_UP, TXT_DOWN, TXT_LIST, TXT_TXT1,
     TXT_TOP, TXT_UP, TXT_DOWN, TXT_LIST, TXT_TXT2
 };
+
 int initinforead(FILE *f, struct infoitem **is, int num, enum infos infonr) {
     int a, b, iinr = 0, read_txt = 0;
     struct infoitem *i2;
 
 
+    /* If the config file didn't specify a value after the marker, then set is
+       to NULL.  Otherwise, alocate memory for the infoitem struct (is?).*/
     if (num == 0) {
         *is = NULL;
     }
@@ -1104,23 +1107,31 @@ int readconfig(void) {
     long int hamver;
 
 
+    /* Read the DevilX INI file and store its values.  See lac_cfg.c. */
     lac_read_cfg();
 
+    /* Load the Devil CFG file. */
     while ( ( f = fopen(init.cfgname, "r+") ) == NULL ) {
         printf(TXT_CANTREADCFG, init.cfgname);
         return 0;
     }
 
+
+    /* Read the version number into the buffer... */
     if (fscanf(f, "%s", buffer) != 1) {
         printf(TXT_CANTREADCFG, init.cfgname);
         return 0;
     }
 
+    /* ...and return zero if the CFG file versions mismatch. */
     if ( strcmp(buffer, VERSION) ) {
         printf(TXT_CFGWRONGVERSION, init.cfgname);
         return 0;
     }
 
+
+    /* Read the PATHS marker, and if the number of Descent versions isn't
+       equal to what was read from the CFG file, then return 0. */
     my_assert( findmarker(f, "PATHS", &i) );
 
     if (i != desc_number) {
@@ -1128,21 +1139,33 @@ int readconfig(void) {
         return 0;
     }
 
+    
+    /* Read the path to the missions into memory.  Why make missionpath and
+       playmsnpath the same? */
     iniread(f, "s", &init.playmsnpath);
     checkmem( init.missionpath = MALLOC(strlen(init.playmsnpath) + 1) );
     strcpy(init.missionpath, init.playmsnpath);
+
+    /* Read the name of the HAM file into memory. */
     iniread(f, "s", &hamname);
 
+    /* Read the paths for the PIG file that corresponds to each Descent 
+       version. */
     for (i = 0; i < desc_number; i++) {
         iniread(f, "s", &init.pigpaths[i]);
     }
 
+    /* Read the keycodes into memory. */
     printf(TXT_READKEYS);
     my_assert( findmarker(f, "KEYS", &view.num_keycodes) );
+    
+    /* Stores the keycode structs read from the CFG file. */
     checkmem( view.ec_keycodes = MALLOC( view.num_keycodes *
                                         sizeof(struct w_keycode) ) );
+    /* Stores the keycode text from the CFG file. */
     checkmem( view.txt_keycode = MALLOC( view.num_keycodes * sizeof(char *) ) );
 
+    /* Why do all of the keycodes lack flags? */
     for (i = 0; i < view.num_keycodes; i++) {
         iniread(f, "k", &view.ec_keycodes[i], &view.txt_keycode[i]);
         view.ec_keycodes[i].flags = 0;
@@ -1155,34 +1178,47 @@ int readconfig(void) {
         }
     }
 
+    /* Read the Descent version to use from the CFG file. */
     my_assert( findmarker(f, "DESCENTVERSION", &i) );
-
+    /* If the Descent version isn't one of the editable versions, then default
+       to Descent 2 1.2. */
     if (i != d1_14_reg && i != d1_10_reg && i != d2_10_reg && i != d2_11_reg
        && i != d2_12_reg) {
         i = d2_12_reg;
     }
-
     init.d_ver = i;
+    
+    
+    /* Read the resolution from the CFG file.  If the number is invalid, then
+       default to 640x480. */
     my_assert( findmarker(f, "RESOLUTION", &i) );
-
     if (i < 0 && i >= NUM_RESOLUTIONS) {
         i = 0;
     }
-
     init.xres = res_xysize[i][0];
     init.yres = res_xysize[i][1];
+    
     fclose(f);
 
+    /* Check to see if the CFG file has a Descent or Descent 2 version it can
+       work with. */
     if (init.d_ver >= desc_number) {
         printf(TXT_ILLEGALDESCENTVERSION);
         return 0;
     }
 
+    /* Is this Descent version editable? */
     if (ininames[init.d_ver] == NULL) {
         printf(TXT_NOEDITABLEDVER, vernames[init.d_ver]);
         return 0;
     }
 
+    /* The Devil INI file has an option for the lightsource file, where the
+       last character can be an X to specify to load the appropriate file
+       depending on if Devil is working with Descent or Descent 2.
+       
+       This code will check the Descent version Devil is configured for, and
+       load the lightsource file needed. */
     if (init.lightname[strlen(init.lightname) - 1] == 'X') {
         init.lightname[strlen(init.lightname) - 1] = init.d_ver >=
                                                      d2_10_sw ? '2' : '1';
@@ -1192,6 +1228,7 @@ int readconfig(void) {
         strcpy(init.lightname, buffer);
     }
 
+    /* Load the texture conversion table INI file. */
     if (init.d_ver >= d2_10_sw) {
         printf(TXT_READCONVTABLEFILE, init.convtablename);
 
@@ -1200,24 +1237,30 @@ int readconfig(void) {
             return 0;
         }
 
+        /* Why is i thrown away here? */
         if ( !findmarker(f, "ConvDefault", &i) ) {
             printf(TXT_CANTFINDCTMARKER, "ConvDefault");
             return 0;
         }
 
+        
         if (fscanf(f, " %d %d", &init.def_t1, &init.def_t2) != 2) {
             printf(TXT_CANTREADCTDEF);
             fclose(f);
             return 0;
         }
 
+        /* Find the number of textures pairs that will be read. */
         if ( !findmarker(f, "ConvTxts", &init.num_convtxts) ) {
             printf(TXT_CANTFINDCTMARKER, "ConvTxts");
             return 0;
         }
 
+        /* Allocate memory for the texture pairs. */
         checkmem( init.convtxts = MALLOC(sizeof(int) * 2 * init.num_convtxts) );
 
+        /* Read in the texture pairs.  The D1 texture index is listed first,
+           followed by the D2 texture. */
         for (i = 0; i < init.num_convtxts; i++) {
             if (fscanf(f, " %d %d", &init.convtxts[i * 2],
                        &init.convtxts[i * 2 + 1]) != 2) {
@@ -1227,14 +1270,17 @@ int readconfig(void) {
             }
         }
 
+        /* Conversion table for animated textures? */
         if ( !findmarker(f, "ConvAnims", &init.num_convanims) ) {
             printf(TXT_CANTFINDCTMARKER, "ConvAnims");
             return 0;
         }
 
+        /* Allocate memory for the animated texture pairs? */
         checkmem( init.convanims =
                      MALLOC(sizeof(int) * 2 * init.num_convanims) );
 
+        /* Read in the animated texture pairs? */
         for (i = 0; i < init.num_convanims; i++) {
             if (fscanf(f, " %d %d", &init.convanims[i * 2],
                        &init.convanims[i * 2 + 1]) != 2) {
@@ -1247,7 +1293,10 @@ int readconfig(void) {
         fclose(f);
     }
 
+    /* Load the INI specific to the Descent version specified in the Devil CFG
+       file. */
     printf(TXT_READINIFILEFORDV, vernames[init.d_ver]);
+    /* +2 here for the forward slash and terminator. */
     checkmem( ininame = MALLOC(strlen(init.cfgpath) +
                                strlen(ininames[init.d_ver]) + 2) );
     strcpy(ininame, init.cfgpath);
@@ -1258,12 +1307,14 @@ int readconfig(void) {
         printf(TXT_CANTOPENVERINIFILE, ininame);
         return 0;
     }
-
     FREE(ininame);
+
+    /* The filename of the palette file is used to find the PIG file? */
     my_assert( findmarker(f, "DefaultPalFile", &i) );
     iniread(f, "s", &pig.default_pigname);
 
     for (i = 0; i < in_number; i++) {
+        /* Read the window name and the number of entries for the window. */
         my_assert( findmarker(f, init.bnames[i], &init.infonum[i]) );
         init.infonum[i] = initinforead(f, &init.info[i], init.infonum[i], i);
     }

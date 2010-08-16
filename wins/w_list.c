@@ -23,6 +23,14 @@
 extern FILE *errf;
 
 /* list functions */
+/*! @brief Creates a linked list.
+ *
+ *  @param[in,out] l A pointer to a list struct.
+ *
+ *  The pointer to the list struct has its dummy, head, and tail links set to
+ *  NULL.  The size and maxnum are set to zero.
+ *
+ */
 void initlist(struct list *l) {
     l->dummy = NULL;
     l->head = (struct node *)&l->dummy;

@@ -12,10 +12,23 @@ int theMaxLight = 65535;
 int changeCubeEnabled = 1;
 
 
+/*! @brief Processes the value from a DevilX INI file parameter.
+ *
+ *  @param[in] s The parameter from the DevilX INI file.
+ *
+ *  @retval p       A character pointer that points to the first character of
+ *                  the value in s.
+ *  @retval NULL    If no equal sign is found, the function returns NULL.
+ *
+ *  The function will read a parameter string and return a pointer to the
+ *  first character of the value.
+ *
+ */
 char* lac_find_value(char* s) {
     char* p = NULL;
 
-
+    
+    /* Point to the equal sign, then point to the first character after it. */
     p = strstr(s, "=");
     p += strspn(p, "= ");
 
@@ -27,6 +40,17 @@ char* lac_find_value(char* s) {
 }
 
 
+/*! @brief Reads the DevilX INI file and processes the results.
+ *
+ *  The INI file can only be from config/devilx.ini.  The DevilX INI parameter
+ *  has the format:
+ *
+ *      CamelCaseValue=value
+ *
+ *  The name and value can be anything, as long as the parameter is less than
+ *  79 characters. 
+ *
+ */
 void lac_read_cfg(void) {
     FILE* cfgfile = fopen("config/devilx.ini", "rt");
 
@@ -37,9 +61,13 @@ void lac_read_cfg(void) {
         char s[80];
         char* p;
 
+
+        /* Read each line in and store the values for each name. */
         while ( !feof(cfgfile) ) {
             fgets(s, sizeof(s), cfgfile);
             s[79] = 0;
+            
+            /* Convert each name to lowercase. */
             for (int i = 0; i < 80; i++) {
                 if (s[i] == 0) {
                     break;

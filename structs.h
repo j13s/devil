@@ -29,10 +29,11 @@
 #include <wins_all.h>
 #ifdef GER
  #include <german/text.h>
- #define INIFILE "config/devilg.ini"
+ #define INIFILE "config/devilg.ini"    
 #else
  #include <english/text.h>
- #define INIFILE "config/devil.ini"
+ /* Stores filenames for use in Devil. */
+ #define INIFILE "config/devil.ini"     
 #endif
 
 #include "descdefs.h"
@@ -100,6 +101,10 @@ enum infotype {
     it_uvcoord, it_deltalight
 };
 
+/*! @struct point structs.h 
+ *  @brief  A structure that stores three dimensions of a point.
+ *
+ */
 struct point {
     float x[3];
 };
@@ -510,9 +515,15 @@ struct infoitem {
     int sidefuncnr; /* call which function */
     struct w_button *b; /* the button for this infoitem */
 };
-/* num_security is the number of extra lighttables at the end and the
-   beginning of the table, to handle the rounding errors which occur during
-   the plotting of a texture */
+
+/*! @struct viewdata structs.h
+ *  @brief  Stores data about the visual aspects of Devil.
+ *
+ *  Original comment:
+ *  num_security is the number of extra lighttables at the end and the
+ *  beginning of the table, to handle the rounding errors which occur during
+ *  the plotting of a texture
+ */
 struct viewdata {
     float dist NONANSI_FLAG, distscala NONANSI_FLAG;
     /* this is the distance viewpoint-screen */
@@ -568,7 +579,10 @@ struct viewdata {
     int coord_axis NONANSI_FLAG;
     int flip_y_axis NONANSI_FLAG;
     int draw_orig_lines NONANSI_FLAG;
-    int littlebulbson NONANSI_FLAG;
+    int littlebulbson NONANSI_FLAG; /*!< Flag for drawing the light bulb on
+                                         the chosen texture in the side
+                                         window that indicates a texture
+                                         produces light. */
 /* 180 */
     unsigned short int mouse_flipaxis NONANSI_FLAG;
     unsigned short int blinkinglightson NONANSI_FLAG;
@@ -579,14 +593,17 @@ struct viewdata {
     /* minimum distance screen<->object for clicking */
     struct point e[3]; /* orientation of screen (left-handed system) */
     /* for the user-defined keys */
-    struct w_keycode *ec_keycodes;
+    struct w_keycode *ec_keycodes;  /*!< Stores an array of w_keycode structs.
+                                     */
     char **txt_keycode;
-    int num_keycodes;
+    int num_keycodes;   /*!< The number of keystroke combinations in the Devil
+                             CFG file. */
     float mincorner; /* the maximum angle - that means min. cos(angle) -
                      in a cube */
     float minweirdwall; /* the min cos(angle) of lines in a wall */
     /* some other things */
-    GrColor color[USEDCOLORS];
+    GrColor color[USEDCOLORS]; /*!< The colors used in drawing the GUI for
+                                    Wins. */
     unsigned char *lightcolors;
     enum tagtypes currmode;
     enum movetypes movemode;
@@ -627,7 +644,19 @@ struct pig_txt {
     /* anim_t2 indicates if animation is for texture 1 (==0) or 2 (==1) */
     unsigned char *data;
 };
+
+/*! @def NUM_LIGHTCOLORS
+ *  The number of lighttables in the Devil palette file.  The first and last
+    lighttables were removed because they were total darkness or matched the
+    palette values themselves.
+ */
 #define NUM_LIGHTCOLORS 32
+
+/*! @def NUM_SECURITY
+ *  The number of extra lighttables at the end and the beginning of the table,
+ *  to handle the rounding errors which occur during the plotting of a
+ *  texture.
+ */
 #define NUM_SECURITY 3
 struct palette
 {
@@ -673,22 +702,65 @@ struct pigdata {
     char *bulbname, *brokenbulbname;
     char bulb[BULBSIZE * BULBSIZE], brokenbulb[BULBSIZE * BULBSIZE];
 };
+
+/*! @struct initdata structs.h
+ *  @brief  Stores file paths, some movement information, etc.
+ *
+ *  
+ */
 struct initdata {
-    enum descent d_ver;
-    char *fontname, *cfgname, *lastname, *menuname, *batchfilename,
-    *lightname,
-    *convtablename;
-    char *macropath, *levelpath, *cfgpath, *missionpath, levelext[4],
-    *alllevelexts,
-    *txtlistpath, *playmsnpath, *pogpath;
+    enum descent d_ver;     /*!< Stores the current Descent version in use. */
+    char *fontname,         /*!< Name of the font to be used in Devil. */
+    
+         *cfgname,          /*!< Name of the Devil configuration file.
+                             *   Extension is CFG. */
+         
+         *lastname,         /*!< Stores the current Devil configuration when
+                                 Devil exits. */
+                                 
+         *menuname,
+         *batchfilename,    /*!< Stores the name of the batch file that */
+         
+         *lightname,        /*!< Name of the lightsource file.  There are
+                             *   separate files for Descent and Descent 2. */
+                             
+         *convtablename;    /*!< Name of the texture conversation table file.
+                                 This file is used to plot a Descent 2 texture
+                                 in the place of a Descent 1 texture if no
+                                 Descent 1 PIG file is found. */
+                                 
+    char *macropath,        /*!< Path to the macro files. */
+    
+         *levelpath,        /*!< Path to the level files. */
+    
+         *cfgpath,          /*!< Path to the configuration files for Devil. */
+         *missionpath,  
+         levelext[4],
+         *alllevelexts,
+         *txtlistpath,      /*!< Path to the txt lists? */
+    
+         *playmsnpath,      /*!< Path to the Descent missions.  Are there
+                             *   separate paths for Descent and Descent 2?
+                             *   The same as missionpath? */
+         *pogpath;          /*!< Path to the POG files. */
+    
     char *pigpaths[desc_number];
-    int xres, yres;
+    int xres,   /*!< Stores the horizontal resolution. */
+        yres;   /*!< Stores the vertical resolution. */
     int numbuttons;
-    char *bnames[in_number];
+    char *bnames[in_number];    /*!< The names of the editing windows. */
     int waittime;
     struct infoitem *info[in_number];
-    int infonum[in_number]; /* number of displayed items */
-    int *convtxts, *convanims, num_convtxts, num_convanims, def_t1, def_t2;
+    int infonum[in_number]; /*!< number of displayed items */
+    int *convtxts,  /*!< Stores the D1 equivalaent D2 texture indicies.  The
+                         even indices are the D1 textures, and the odds are
+                         the D2 texture equivalents.  */
+        *convanims,
+         num_convtxts,  /*!< Number of D1 textures to find D2 equivalents for?
+                         */
+         num_convanims,
+         def_t1,
+         def_t2;
 };
 
 /* if m is a coordsystem in MATRIXMULT the vectors are in the columns */

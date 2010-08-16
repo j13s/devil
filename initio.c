@@ -30,30 +30,91 @@ int readobjtype(FILE *f, struct objtype *ot);
 void readstring(FILE *f, char **s);
 void printobjtypelists(struct infoitem *is, int num, int indent);
 
-
+/*! @var   init_test
+ *  @brief Stores the debugging message level for various INI files.
+ *
+ *         Ranges from 0-8, with zero being the lowest level.  More
+ *         information is needed here.
+ */
 int init_test;
+
+/*! @var   txtoffsets
+ *  @brief Stores an integer array of texture offsets for the Descent and
+ *         Descent 2 PIG files?
+ *
+ *  Each index in the array corresponds to a Descent version.  The order is as
+ *  follows:
+ *  
+ *  - Descent 1 Shareware 1.0
+ *  - Descent 1 Registered 1.0
+ *  - Descent 1 Registered 1.4
+ *  - Descent 2 Shareware 1.0
+ */
 int txtoffsets[desc_number];
 
+/*! @brief Find a marker in a Devil INI file.
+ *
+ * Look for a marker in a Devil INI file and return the number associated with
+ * that marker.  A marker looks like:
+ * 
+ *      <tt>:INITDATA 0</tt>
+ *      
+ * where the colon indicates the string is a marker.  The identifer follows.
+ * An identifier can be any character except null and the newline character.
+ * The number is placed after one space or tab.  This number will be converted
+ * to an integer using the atoi function.  After the number, a newline
+ * follows.  The marker plus the number may be up to 255 characters including
+ * the newline.
+ * 
+ * 
+ * 
+ * @param[in]   f       f points to the opened INI file.
+ * @param[in]   m       m is a string that contains the marker being looked
+ *                      for.
+ * @param[out]  number  number stores the value of the marker.
+ * 
+ * @retval  0   The marker was not found.
+ * @retval  1   The marker was found.  
+ */
 int findmarker(FILE *f, const char *m, int *number) {
-    char puffer[255], newmarker[200];
+    char puffer[255],       /* Stores the line read from the INI file. */
+         newmarker[200];    /* Stores the concatenated symbol and identifer
+                               string. */
 
-
-    fseek(f, 0, SEEK_SET); /* not the smartest solution */
+    
+    /* Start from the beginning of the file to find the marker. */
+    fseek(f, 0, SEEK_SET);      /* not the smartest solution */
+    
+    /* Build the marker string. */
     newmarker[0] = ':';
-    strcpy(&newmarker[1], m);
+    strcpy(&newmarker[1], m);   
     newmarker[strlen(m) + 1] = 0;
 
+    /* Loop through each line in the file looking for the marker.  If it isn't
+       found by the end of the file, return 0. */
     do {
         if (fgets(puffer, 255, f) == NULL) {
             return 0;
         }
     } while ( strncmp( newmarker, puffer, strlen(newmarker) ) );
 
+    /* Convert the string after the marker to an integer.  The +1 is for the
+       whitespace character after the marker. */
     *number = atoi(&puffer[strlen(newmarker) + 1]);
+    
     return 1;
 }
 
 
+/*! @brief Skips to the next line.
+ *
+ *  This function will skip to the next line by reading the rest of the INI
+ *  file contents into a buffer.  The size of the line must not exceed 79
+ *  characters or Devil will throw an error.  This can be used to insert
+ *  comments into the INI file.
+ *
+ *  @param[in] f    FILE Pointer to Devil INI file.
+ */
 void skipline(FILE *f) {
     char puffer[255];
 
@@ -70,6 +131,15 @@ void skipline(FILE *f) {
 }
 
 
+/*! @brief Reads a point as defined in structs.h from a Devil INI file.
+ *
+ *  @param[in]  f   The Devil INI file.
+ *  @param[out] p   A pointer to a point structure that will store the point
+ *                  from the INI file.
+ *
+ *  The function will read three signed floating-point literals from a Devil
+ *  INI file.  If the point could not be read, Devil will exit to the prompt.
+ */
 void readpoint(FILE *f, struct point *p) {
     if (fscanf(f, "%g%g%g", &p->x[0], &p->x[1], &p->x[2]) != 3) {
         printf("Can't read point.\n");
@@ -78,11 +148,27 @@ void readpoint(FILE *f, struct point *p) {
 }
 
 
+/*! @brief Read a character string from a Devil INI file.
+ *  
+ *  Devil INI file strings are formatted like so:
+ *
+ *  <tt>{string}</tt>
+ *
+ *  The string must be delinated with opening and closing braces.  A '}'
+ *  character cannot be escaped and is excluded from the list of allowed
+ *  characters since it closes a string.
+ *
+ *  The maximum length of a string is 255 characters.
+ *
+ *  @param[in]  f   FILE pointer to the Devil INI file.
+ *  @param[out] s   Pointer to a character string.
+ */
 void readstring(FILE *f, char **s) {
     int i = 0;
     char puffer[255];
 
-
+    /* Look for the start of the string.  If one isn't found, then exit the
+     * program. */
     while (fgetc(f) != '{') {
         if ( feof(f) ) {
             printf("Can't find start of string.\n");
@@ -90,12 +176,17 @@ void readstring(FILE *f, char **s) {
         }
     }
 
+    
+    /* Read the string into puffer until a '}' character is reached, 255
+     * characters are read, or the end of the file is reached. */
     do {
         puffer[i++] = fgetc(f);
     } while ( puffer[i - 1] != '}' && i < 255 && !feof(f) );
 
     puffer[i - 1] = 0;
 
+    /* If the string exceeded the 255 character length or the end of the file
+     * was reached, then exit the program with an error. */
     if (feof(f) || i == 255) {
         printf("Can't read string.\n");
         exit(2);
@@ -110,6 +201,19 @@ void readstring(FILE *f, char **s) {
 }
 
 
+/*! @brief Read an objtype struct from a Devil INI file. 
+ *
+ *  The objtype is formatted like so:
+ *
+ *  <tt>0x00 0 {string}</tt>
+ *
+ *  The first value is an unsigned integer in hexadecimal.  The next is a
+ *  signed integer.  The last is a string with a description of the object.
+ *  The string follows the Devil INI string format (see readstring()).
+ *
+ *  @param[in]   f  Devil INI file pointer.
+ *  @param[out]  ot Struct that holds an objtype.
+ */
 int readobjtype(FILE *f, struct objtype *ot) {
     int num;
 
@@ -128,13 +232,33 @@ int readobjtype(FILE *f, struct objtype *ot) {
     return num;
 }
 
-
+/*! @brief Read a w_keycode struct and its text from a Devil CFG file.
+ *
+ *  @param[in] f The filehandle for the INI file.
+ *  @param[out] kc A w_keycode struct that will store the info read from the
+ *                 CFG file.
+ *  @param[out] s A pointer to a character string that will store the text
+ *                that follows the keycode.
+ *
+ *
+ *  The keycode is formatted like so:
+ *
+ *      0 27 0 {quit}
+ *
+ *  The first digit is an int that indicates the keyboard modifier key status.
+ *  The second digit is the key hit.  The third is the event keycode.  After
+ *  that follows a Devil INI string.
+ *
+ */
 void readkeycode(FILE *f, struct w_keycode *kc, char **s) {
+    /* Read the modifier key status, the key, and the corresponding event
+       code. */
     if (fscanf(f, "%i%i%i", &kc->kbstat, &kc->key, &kc->event) != 3) {
         printf("Can't read keycode.\n");
         exit(2);
     }
 
+    /* Read in the string describing the keycode that follows. */
     readstring(f, s);
 }
 
@@ -163,8 +287,47 @@ int readinfotype(FILE *f, struct infoitem *i) {
 }
 
 
+/*! @brief A variadic function that reads the values below a marker in a Devil
+ *         INI file. 
+ *
+ *  @param[in]  f   Devil INI file.
+ *  @param[in]  t   The string that describes each data type.
+ *  @param[out] ... Pointers to variables that will store the values read from
+ *                  the INI file.
+ *
+ *  This function reads values from an INI file.  The types of data Devil
+ *  reads from an INI file is hard-coded into the application.  The types
+ *  are like so:
+ *
+ *  @c g    - A C floating point literal.
+ *
+ *  @c p    - A point structure as defined by structs.h.
+ *
+ *  @c U    - A C unsigned long integer literal in decimal.
+ *
+ *  @c X    - A C unsigned long integer literal in hexadecimal.
+ *
+ *  @c d    - A C signed integer literal.
+ *
+ *  @c x    - A C unsigned integer literal in hexadecimal.
+ *
+ *  @c s    - A Devil INI file string.  See @ref readstring.
+ *
+ *  @c o    - An @ref objtype struct.  See @ref readobjtype.
+ *
+ *  @c i    - An @ref infoitem struct.  This is unknown at this time.
+ *
+ *  @c k    - A w_keycode struct and its text from a Devil CFG file.
+ *
+ *
+ *  @retval ret The number of children under this parameter.  Only valid for
+ *              i or o tokens.  This value is only valid for the last call to
+ *              readinfotype or readobjtype.
+ */
 int iniread(FILE *f, const char *t, ...) {
-    int i, n, ret = 0;
+    int i, 
+        n,          /* Stores the number of values to read in. */
+        ret = 0;
     struct w_keycode *wkey;
     va_list alist;
 
@@ -172,9 +335,12 @@ int iniread(FILE *f, const char *t, ...) {
     va_start(alist, t);
     n = strlen(t);
 
+    /* Read the values from the Devil INI file into the list of variables
+     * passed into the function according to the string of conversion specs
+     * passed. */
     for (i = 0; i < n; i++) {
         switch (t[i]) {
-            case 'g':
+            case 'g':   /* Read a float. */
 
                 if (fscanf( f, "%g", va_arg(alist, float *) ) != 1) {
                     printf("Can't read float.\n");
@@ -183,11 +349,11 @@ int iniread(FILE *f, const char *t, ...) {
 
                 break;
 
-            case 'p':
+            case 'p':   /* Read a point.  See structs.h. */
                 readpoint( f, va_arg(alist, struct point *) );
                 break;
 
-            case 'U':
+            case 'U':   /* Read an unsigned long integer. */
 
                 if (fscanf( f, "%lu",
                            va_arg(alist, unsigned long *) ) != 1) {
@@ -197,7 +363,7 @@ int iniread(FILE *f, const char *t, ...) {
 
                 break;
 
-            case 'X':
+            case 'X':   /* Read a long unsigned hexadecimal integer. */
 
                 if (fscanf( f, "%lx",
                            va_arg(alist, unsigned long *) ) != 1) {
@@ -207,7 +373,7 @@ int iniread(FILE *f, const char *t, ...) {
 
                 break;
 
-            case 'd':
+            case 'd':   /* Read an integer. */
 
                 if (fscanf( f, "%d", va_arg(alist, int *) ) != 1) {
                     printf("Can't read int.\n");
@@ -216,7 +382,7 @@ int iniread(FILE *f, const char *t, ...) {
 
                 break;
 
-            case 'x':
+            case 'x':   /* Read an unsigned hex integer. */
 
                 if (fscanf( f, "%x", (unsigned int *)va_arg(alist, int *) ) != 1) {
                     printf("Can't read int.\n");
@@ -225,36 +391,50 @@ int iniread(FILE *f, const char *t, ...) {
 
                 break;
 
-            case 's':
+            case 's':   /* Read a brace-delineated string. */
                 readstring( f, va_arg(alist, char **) );
                 break;
 
-            case 'o':
+            case 'o':   /* Read data for an objtype struct */
                 ret = readobjtype( f, va_arg(alist, struct objtype *) );
                 break;
 
-            case 'i':
+            case 'i':   /* Read an @ref infoitem struct into memory. */
                 ret = readinfotype( f, va_arg(alist, struct infoitem *) );
                 break;
 
-            case 'k':
+            case 'k':   /* Read in a w_keycode struct and its text. */
                 wkey = va_arg(alist, struct w_keycode *);
                 readkeycode( f, wkey, va_arg(alist, char **) );
                 break;
 
-            default:
+            default:    /* The wrong character was passed into iniread(). */
                 printf("Unknown type %c\n", t[i]);
                 exit(2);
         }
 
+        /* Move to the next line. */
         skipline(f);
     }
 
     va_end(alist);
+    
     return ret;
 }
 
-
+/*! @brief Concatenates the base configuation path with a string.
+ *
+ *  @param[in,out] s A pointer to a string that contains the INI filename.
+ *                   s must be free'd after it is used.
+ *
+ *  The directory stored in @c init.cfgpath is concatenated with a
+ *  forward-slash and the string pointed to by s.  The string pointed to by
+ *  s then becomes the relative path to the INI file.
+ *
+ *  For example, if a pointer to the string @c "try.ini" is passed into the
+ *  function, and @c "conf" is stored in @c init.cfgpath, then the pointer
+ *  passed into the function will point to a new string @c "conf/try.ini". 
+ */
 void addcfgpath(char **s) {
     char *r;
 
@@ -267,49 +447,94 @@ void addcfgpath(char **s) {
     *s = r;
 }
 
-
+/*! @brief Reads 256 color palettes from a Devil palette file.
+ *
+ *  @param[in] f Pointer to Devil palette.  The pointer must point to the
+ *               first byte of the file for the function to work correctly.
+ *
+ *  The Devil palette file is a collection of the seven Descent and
+ *  Descent 2 palettes with additional metadata.  The first byte of the file
+ *  indicates how many palettes are stored in the file.  Then the next eight
+ *  bytes are the seven character palette name and the null terminator.  The
+ *  256 RGB values are then read in and left shifted twice to get the RGB 
+ *  values.
+ *
+ *  The lighttables can be accessed from view.lightcolors.
+ *
+ *  This function also implements security lighttables for rounding errors
+ *  that occur when plotting a texture.  These are not understood yet.
+ *
+ *  @retval 0 Function failed to load the palette file.
+ *  @retval 1 Function succeeded in loading the palette file.
+ */
 int readpalettes(FILE *f) {
     int i, j;
-    unsigned char num_pal;
+    /* Stores the number of palettes in the Devil palette file. */
+    unsigned char num_pal;  
 
-
+    /* A char8 at offset 0x0 marks the number of palettes that are stored in
+       the file.  If this number doesn't match NUM_PALETTES then Devil will
+       stop loading the INI file. */
     if (fread(&num_pal, 1, 1, f) != 1 || NUM_PALETTES != num_pal) {
         return 0;
     }
 
     for (i = 0; i < NUM_PALETTES; i++) {
+        /* The palette's name is stored in seven bytes plus a null 
+           terminator.  If the name is shorter than seven bytes, then it is
+           padded with null bytes. */
         if (fread(palettes[i].name, 1, 8, f) != 8) {
             return 0;
         }
 
+        /* Don't trust that the palette file terminates the name correctly. */
         palettes[i].name[8] = 0;
 
+        /* Read in the RGB values from the palette. */
         if (fread(palettes[i].palette, 3, 256, f) != 256) {
             return 0;
         }
 
+        /* The values are right shifted in the palette files, so left shift
+           them here. */
         for (j = 0; j < 3 * 255; j++) {
-            palettes[i].palette[j] = palettes[i].palette[j] << 2; /* values are
-                                                                    0..63 */
+            palettes[i].palette[j] = palettes[i].palette[j] << 2;
         }
 
-        checkmem( palettes[i].mem_lighttables =
-                     malloc( (NUM_SECURITY * 2 + NUM_LIGHTCOLORS + 1) * 256 ) );
+        /* Load the light tables from the palette. */
+        /* num_security is the number of extra lighttables at the end and the
+           beginning of the table, to handle the rounding errors which occur
+           during the plotting of a texture */
+        checkmem(
+            palettes[i].mem_lighttables = malloc(
+                (NUM_SECURITY * 2 + NUM_LIGHTCOLORS + 1) * 256
+            )
+        );
+        
         palettes[i].lighttables = (unsigned char *)
                                   ( (unsigned long)palettes[i].
                                    mem_lighttables /* & 0xffffff00 */ );
         /* 0xffffff00 is magic.  I have no idea why it is here. */
 
+        /* Read the lighttables into memory.  The lighttables are copied into
+           the array at the point where the security lighttables end. */
         if (fread(&palettes[i].lighttables[256 * NUM_SECURITY], 256,
                   NUM_LIGHTCOLORS, f) != NUM_LIGHTCOLORS) {
             return 0;
         }
 
-        /* this is to get proper light values even if we have some trouble with
-           rounding */
+        /* this is to get proper light values even if we have some trouble
+           with rounding */
+           
+        /* Setup the security lighttables. */
         for (j = 0; j < NUM_SECURITY; j++) {
+            /* Copy the first real lighttable into the first three security
+               lighttables. */
             memcpy(&palettes[i].lighttables[256 * j],
                    &palettes[i].lighttables[NUM_SECURITY * 256], 256);
+            
+            /* Copy the last real lighttable into the last three security 
+               tables. */
             memcpy(&palettes[i].lighttables[256 *
                                             (NUM_LIGHTCOLORS + NUM_SECURITY +
                                              j)],
@@ -318,24 +543,41 @@ int readpalettes(FILE *f) {
         }
     }
 
+    /* Set the lighttables pointer in the viewdata struct to point to the
+       first real lighttable. */
     view.lightcolors = &palettes[0].lighttables[NUM_SECURITY * 256];
     return 1;
 }
 
 
+/*!
+ *  @brief Reads the information in config/devil.ini into a viewdata struct.
+ *
+ *  @param[in] fn A string that contains the path to the devil.ini file.
+ *  @param[in] c  Stores the titlescreen flag (does nothing in this function).
+ *
+ *  Reads the values in config/devil.ini and sets up the GUI and editor.
+ *
+ */
 void initeditor(const char *fn, int c) {
     int i, n;
     FILE *f;
-    char *palname;
+    char *palname;  /* Name of the Devil palette file. */
 
-
+    /* config/devil.ini must exist, otherwise Devil won't know which files to
+       load. */
     if ( ( f = fopen(fn, "r+") ) == NULL ) {
         printf(TXT_CANTOPENINI TXT_UNZIPWITHD, fn);
         exit(2);
     }
 
+    /* Let the user know Devil is parsing devil.ini. */
     printf(TXT_READINI);
+    
+    /* If :INITDATA is not present in devil.ini, then fail with an assertion
+       error. */
     my_assert( findmarker(f, "INITDATA", &init_test) );
+    
     iniread(
         f,
         "dddpppdgggggggggdggggggggggggggggdddddddddddddddddsssssssssssssss",
@@ -358,13 +600,19 @@ void initeditor(const char *fn, int c) {
         &view.warn_doublekeys,
         &view.warn_tworeactors, &view.warn_thingoutofbounds,
         &view.warn_gridrot,
+        
         &txtoffsets[0], &txtoffsets[1], &txtoffsets[2], &txtoffsets[3],
+        
         &init.waittime, &init.macropath, &init.levelpath, &init.pogpath,
         &init.txtlistpath, &init.cfgpath, &init.fontname, &palname,
         &init.cfgname, &init.lightname, &init.convtablename,
         &init.lastname,
-        &init.batchfilename, &init.menuname, &pig.bulbname,
-        &pig.brokenbulbname);
+        &init.batchfilename, &init.menuname,
+        
+        &pig.bulbname,
+        &pig.brokenbulbname
+    );
+    
     view.illum_minvalue = n;
     view.render = 0;
     view.gamma_corr = 7 << 9;
@@ -372,6 +620,9 @@ void initeditor(const char *fn, int c) {
     view.timescale = 1.0;
     view.warn_frameratetoosmall = 1;
     view.warn_illuminate = 1;
+    
+    /* Prepend the config directory to this list of filenames read from
+       devil.ini. */
     addcfgpath(&init.cfgname);
     addcfgpath(&init.lastname);
     addcfgpath(&init.menuname);
@@ -392,6 +643,8 @@ void initeditor(const char *fn, int c) {
     normalize(&view.e[0]);
     normalize(&view.e[1]);
     VECTOR(&view.e[2], &view.e[1], &view.e[0]); /* left-handed system */
+    
+    /* Find the number of Cube, Side, etc. windows to open. */
     my_assert( findmarker(f, "BUTTONS", &init.numbuttons) );
 
     if (init.numbuttons != in_number) {
@@ -399,13 +652,16 @@ void initeditor(const char *fn, int c) {
         exit(2);
     }
 
+    /* Read the names of the editing windows from devil.ini. */
     for (i = 0; i < init.numbuttons; i++) {
         iniread(f, "s", &init.bnames[i]);
     }
 
+    /* Close devil.ini */
     fclose(f);
+    
     addcfgpath(&palname);
-
+    
     if ( ( f = fopen(palname, "rb") ) == NULL ) {
         printf("Can't open palette-file: %s.\n", palname);
         exit(2);
@@ -413,12 +669,15 @@ void initeditor(const char *fn, int c) {
 
     FREE(palname);
 
+    /* Read the Descent and Descent 2 palettes stored in the Devil palette
+       file into memory. */
     if ( !readpalettes(f) ) {
         printf("Can't read palette file.\n");
         exit(2);
     }
-
     fclose(f);
+    
+    /* Start a linked list of the levels currently open? */
     initlist(&view.levels);
     view.txt_window = NULL;
     view.defwall = 0;
@@ -429,6 +688,9 @@ void initeditor(const char *fn, int c) {
     pig.default_pigname = NULL;
     pig.pig_txts = NULL;
     pig.num_pigtxts = 0;
+    
+    /* Flag for drawing the light bulb on the chosen texture in the side
+       window that indicates a texture produces light. */
     view.littlebulbson = 1;
 }
 
