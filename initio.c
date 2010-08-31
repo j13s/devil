@@ -263,6 +263,28 @@ void readkeycode(FILE *f, struct w_keycode *kc, char **s) {
 }
 
 
+/*! @brief Reads an @ref infoitem struct from a Devil INI file.
+ *
+ *  @param[in]  f The Devil INI file being read.
+ *  @param[out] i The infoitem struct that will store the information read
+ *                from the INI file.
+ *
+ *  @retval     p An int containing the number of child infoitem types under
+ *                the current infoitem type.
+ *
+ *  {string} a b c d e f g
+ *
+ *  - {string} A Devil INI string that describes this infoitem.  See @ref
+               readstring.
+ *  - a
+ *  - b
+ *  - c
+ *  - d
+ *  - e
+ *  - f        The number of child infotypes under this infotype.
+ *  - g
+ *
+ */
 int readinfotype(FILE *f, struct infoitem *i) {
     int p, inr, tnr;
 
@@ -315,7 +337,7 @@ int readinfotype(FILE *f, struct infoitem *i) {
  *
  *  @c o    - An @ref objtype struct.  See @ref readobjtype.
  *
- *  @c i    - An @ref infoitem struct.  This is unknown at this time.
+ *  @c i    - An @ref infoitem struct.  See @ref readinfotype.
  *
  *  @c k    - A w_keycode struct and its text from a Devil CFG file.
  *

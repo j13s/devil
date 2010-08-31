@@ -801,6 +801,7 @@ int initinforead(FILE *f, struct infoitem **is, int num, enum infos infonr) {
         exit(2);
     }
 
+    
     for (i2 = *is; i2 - *is < num; i2++) {
         if (init_test & 1) {
             fprintf(errf, "Reading infonr: entry %ld num %d\n",

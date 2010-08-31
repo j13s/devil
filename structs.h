@@ -84,15 +84,42 @@ enum tagtypes {
 enum movetypes {
     mt_you, mt_obj, mt_current, mt_texture, mt_number
 };
+
+/*! @enum infos
+ *
+ *  Gives editing context to a function.  Also used to indicate the type of an
+ *  infoitem struct?
+ */
 enum infos {
-    in_cube, in_wall, in_edge, in_pnt, in_thing, in_door, in_internal,
+    in_cube,
+    in_wall,
+    in_edge,
+    in_pnt,
+    in_thing,
+    in_door,
+    in_internal,
     in_number
 };
+
+/*! @enum datastructs
+ *
+ *  Used to indicate the type of an infoitem.
+ */
 enum datastructs {
-    ds_cube, ds_wall, ds_corner, ds_thing, ds_door, ds_internal,
-    ds_leveldata, ds_sdoor, ds_producer, ds_point, ds_turnoff,
+    ds_cube,
+    ds_wall, 
+    ds_corner, 
+    ds_thing, 
+    ds_door, 
+    ds_internal,
+    ds_leveldata, 
+    ds_sdoor, 
+    ds_producer, 
+    ds_point, 
+    ds_turnoff,
     ds_changedlight,
-    ds_flickeringlight, ds_number
+    ds_flickeringlight, 
+    ds_number
 };
 enum infotype {
     it_selbutton, it_markbutton, it_light, it_size, it_coord,
@@ -491,29 +518,38 @@ struct objdata {
     int size;
     struct objtype **data;
 };
+
+/*! @struct infoitem structs.h
+ *  @brief  Seems to hold information for each of the attribute windows.
+ *
+ *  
+ */
 struct infoitem {
-    enum infotype type; /* type of data */
-    char *txt; /* description */
-    enum datastructs infonr; /* to get the corresponding structure */
-    enum infos tagnr; /* to find the corresponding tag list,
+    enum infotype type; /*!< type of data */
+    char *txt; /*!< The name of the editor window type. */
+    enum datastructs infonr; /*!< to get the corresponding structure */
+    enum infos tagnr; /*!< to find the corresponding tag list,
                       if tagnr>=in_internal this field is not done with tagged
                          objects */
-    int multifuncnr; /* for selection button=numchildren, for tag button
-                     =maximum number of tagged options, for texture group:
-                     0 texture itself
-                     1-5 texture 1, top,up,down,bottom,name
-                     6-10 texture 2, top,up,down,bottom,name
+    int multifuncnr; /*!< for selection button=numchildren, for tag button
+                     = maximum number of tagged options, for texture group:
+                     - 0 texture itself
+                     - 1-5 texture 1, top,up,down,bottom,name
+                     - 6-10 texture 2, top,up,down,bottom,name
                      otherwise not relevant */
-    int offset, length, numchildren; /* offset,length: pos. in structure; */
-    struct infoitem **children;
-    int *numinchildren; /* how many entries in children */
-    /* children=infoitems depending on this infoitem */
-    unsigned long *itemchildren;
-    /* itemchildren=array of the numbers belonging to children */
-    struct objdata *od; /* =NULL if normal field, otherwise the list of objs
+    int offset, length, numchildren; /*!< offset,length: pos. in structure; */
+
+    struct infoitem **children; /*!< children=infoitems depending on this
+                                   infoitem */
+    int *numinchildren; /*!< how many entries in children */
+    
+    unsigned long *itemchildren;    /*!< itemchildren=array of the numbers
+                                         belonging to children */
+    
+    struct objdata *od; /*< =NULL if normal field, otherwise the list of objs
                         for this field. */
-    int sidefuncnr; /* call which function */
-    struct w_button *b; /* the button for this infoitem */
+    int sidefuncnr; /*< call which function */
+    struct w_button *b; /*< the button for this infoitem */
 };
 
 /*! @struct viewdata structs.h
@@ -750,8 +786,9 @@ struct initdata {
     int numbuttons;
     char *bnames[in_number];    /*!< The names of the editing windows. */
     int waittime;
-    struct infoitem *info[in_number];
-    int infonum[in_number]; /*!< number of displayed items */
+    struct infoitem *info[in_number];   /*!< The editor windows (cube, edge,
+                                             point, etc.) */
+    int infonum[in_number]; /*!< The number of displayed editor windows. */
     int *convtxts,  /*!< Stores the D1 equivalaent D2 texture indicies.  The
                          even indices are the D1 textures, and the odds are
                          the D2 texture equivalents.  */
