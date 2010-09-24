@@ -786,12 +786,35 @@ const char *txtgroup_txt[11] = {
     TXT_TOP, TXT_UP, TXT_DOWN, TXT_LIST, TXT_TXT2
 };
 
+
+/*! @brief Reads Devil INI files that contain the information necessary to
+ *         edit Descent and Descent 2 levels.
+ *
+ *  @param[in] f      FILE pointer to the Descent INI file.
+ *  @param[in] is     A pointer to an @ref infoitem pointer.  This struct will
+ *                    store the information read from the Descent INI file and
+ *                    use it to draw the editing windows.
+ *  @param[in] num    Number of infoitem structs for this editing window.
+ *  @param[in] infonr The encoded value from @ref infos for the editing
+ *                    window being read.  
+ *
+ *  @retval ret_var ret_desc
+ *
+ *  Reads values from a Devil INI file containing information on the specific
+ *  Descent version being edited.
+ *
+ */
 int initinforead(FILE *f, struct infoitem **is, int num, enum infos infonr) {
-    int a, b, iinr = 0, read_txt = 0;
+    int a,              /* Stores the number of infotype children under an
+                           objtype when reading an objtype.*/
+        b,              /* Stores the number of objtype children under an
+                           infotype when reading an infotype. */
+        iinr     = 0,
+        read_txt = 0;
     struct infoitem *i2;
 
 
-    /* If the config file didn't specify a value after the marker, then set is
+    /* If the config file didn't specify a value after the marker, then set it
        to NULL.  Otherwise, alocate memory for the infoitem struct (is?).*/
     if (num == 0) {
         *is = NULL;
@@ -824,9 +847,12 @@ int initinforead(FILE *f, struct infoitem **is, int num, enum infos infonr) {
             }
         }
         else {
+            /* If not reading a texture?, then just read a normal infotype
+               definition from the INI file. */
             b = iniread(f, "i", i2);
         }
 
+        /* Set the tag value for this infoitem. */
         i2->tagnr = infonr;
 
         if ( (i2->type == it_texture || i2->type == it_dooranim ||
@@ -869,7 +895,13 @@ int initinforead(FILE *f, struct infoitem **is, int num, enum infos infonr) {
                     i2->txt, i2->offset, i2->numchildren, b);
         }
 
+        /* If there are widgets underneath this widget, then allocate memory
+           for the widgets, the int that will determine the number of children
+           in this infoitem, and something else?  If there are no child
+           infoitems, then set numchildren, itemchildren, and numinchildren to
+           NULL. */
         if (i2->numchildren > 0) {
+            
             if ( ( i2->children =
                       MALLOC(sizeof(struct infoitem *)*i2->numchildren) ) ==
                 NULL ) {
@@ -896,20 +928,27 @@ int initinforead(FILE *f, struct infoitem **is, int num, enum infos infonr) {
             i2->numinchildren = NULL;
         }
 
+        /* Allocate memory for the objtypes of this infotype.  If there are
+           no objtypes, then the pointer to the objdata container is set to
+           NULL. */
         if (b > 0) {
+            /* Allocate the container for the infotypes. */
             if ( ( i2->od = MALLOC( sizeof(struct objdata) ) ) == NULL ) {
                 printf("No mem for objdata.\n");
                 exit(2);
             }
 
+            /* Indicate how many objtypes are stored in this container. */
             i2->od->size = b;
 
+            /* Allocate the memory to store the objtypes. */
             if ( ( i2->od->data = MALLOC(sizeof(struct objtype *)*
                                          (size_t)i2->od->size) ) == NULL ) {
                 printf("No mem for objtype *.\n");
                 exit(2);
             }
 
+            /* Read each objtype into memory. */
             for (b = 0, iinr = 0; b < i2->od->size; b++) {
                 if ( ( i2->od->data[b] =
                           MALLOC( sizeof(struct objtype) ) ) == NULL ) {
@@ -917,6 +956,7 @@ int initinforead(FILE *f, struct infoitem **is, int num, enum infos infonr) {
                     exit(2);
                 }
 
+                /* Find if there are any infotype children. */
                 a = iniread(f, "o", i2->od->data[b]);
 
                 if (a > 0) {
@@ -1101,6 +1141,15 @@ void printobjtypelists(struct infoitem *is, int num, int indent) {
 }
 
 
+/*! @brief Reads the devilx.ini and associated Descent version INI files.
+ *
+ *  @retval 0 Failed to read the INI file.  An error message will be printed
+ *            to STDOUT describing what went wrong.
+ *  @retval 1 Read the INI files successfully.
+ *
+ *  func_desc
+ *
+ */
 int readconfig(void) {
     int i, j;
     FILE *f, *hamf;
@@ -1317,9 +1366,16 @@ int readconfig(void) {
     for (i = 0; i < in_number; i++) {
         /* Read the window name and the number of entries for the window. */
         my_assert( findmarker(f, init.bnames[i], &init.infonum[i]) );
+        /* Read the infomation needed to draw the widgets for the window from
+           a Devil INI file that contains information about specific Descent
+           versions. */
         init.infonum[i] = initinforead(f, &init.info[i], init.infonum[i], i);
     }
 
+    /* Determine which level extension to use.  The level extension stored in
+       init.levelext is dependent on the Descent version that is currently
+       being edited.  If editing Descent 2, load Descent and Descent 2 levels?
+       If only editing Descent, then only load Descent levels? */
     strcpy(init.levelext, extnames[init.d_ver]);
     checkmem( init.alllevelexts = MALLOC(strlen(extnames[d1_14_reg]) +
                                          strlen(extnames[d2_10_reg]) + 2) );
@@ -1331,8 +1387,9 @@ int readconfig(void) {
     else {
         init.alllevelexts[0] = 0;
     }
-
     strcat(init.alllevelexts, extnames[d1_14_reg]);
+
+
     my_assert( findmarker(f, "DoorNames", &i) );
     iniread(f, "s", &pig.anim_txt_names);
     /* Now read all starts of animation textures for walls */

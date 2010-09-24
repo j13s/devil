@@ -121,11 +121,31 @@ enum datastructs {
     ds_flickeringlight, 
     ds_number
 };
+
+/*! @enum  infotype
+ *  @brief Used to decode the type of widget for the editing windows in the windowing
+ *         system.
+ */
 enum infotype {
-    it_selbutton, it_markbutton, it_light, it_size, it_coord,
-    it_degree, it_float, it_int, it_cubelight, it_sidelight, it_texture,
-    it_dooranim, it_thingtexture, it_thingcoord, it_fl_mask, it_fl_delay,
-    it_uvcoord, it_deltalight
+    it_selbutton,       /*!< A selection button that only allows one choice.
+                         */
+    it_markbutton,      /*!< A selection button that allows many choices. */
+    it_light,           /*!< Inner cube light widget? */
+    it_size,            /*!< Size widget? */
+    it_coord,           /*!< Coordinate editing widget. */
+    it_degree,          /*!< Widget that sets an angle. */
+    it_float,           /*!< Widget that sets a floating-point value. */
+    it_int,             /*!< Widget that sets an integer. */
+    it_cubelight,       /*!< Edits the edge light of a cube? */
+    it_sidelight,       /*!< Edits the edge light of a cube's side? */
+    it_texture,         /*!< Texture editing widget. */
+    it_dooranim,        /*!< Animated door widget? */
+    it_thingtexture,    /*!< Sets the texture for a reactor or robot? */
+    it_thingcoord,      /*!< Widget to set the coordinate of an object. */
+    it_fl_mask,         /*!< ??? */
+    it_fl_delay,        /*!< ??? */
+    it_uvcoord,         /*!< Widget to set texture alignment. */
+    it_deltalight       /*!< Something to do with cloaked walls? */
 };
 
 /*! @struct point structs.h 
@@ -510,13 +530,26 @@ struct leveldata {
     struct saved_position saved_pos[NUM_SAVED_POS];
     int x_size[2], y_size[2]; /* window size for single&double mode */
 };
+
+/*! @struct objtype structs.h
+ *  @brief  Stores data for various Descent level objects.
+ *
+ *  The values are defined in each Descent INI file.
+ */
 struct objtype {
-    int no;
-    char *str;
+    int no;     /*!< The value for the Descent level file that indicates that
+                     this object is of a type. */
+    char *str;  /*!< A Devil INI string that will describe what this objtype
+                     does.  Can be something like "producer" for a cube. */
 };
+
+/*! @struct objdata structs.h
+ *  @brief  Container for an array of objtype structs.
+ */
 struct objdata {
-    int size;
-    struct objtype **data;
+    int size;               /*!< Stores the number of objtypes. */
+    struct objtype **data;  /*!< Stores the objtypes read from a Descent INI
+                                 file. */
 };
 
 /*! @struct infoitem structs.h
@@ -539,12 +572,15 @@ struct infoitem {
                      otherwise not relevant */
     int offset, length, numchildren; /*!< offset,length: pos. in structure; */
 
-    struct infoitem **children; /*!< children=infoitems depending on this
-                                   infoitem */
-    int *numinchildren; /*!< how many entries in children */
+    struct infoitem **children; /*!< Stores the child infoitems.  Is NULL if
+                                     there are no children. */
+    int *numinchildren;         /*!< Stores the number of children held by
+                                     this struct.  Is NULL if there are no
+                                     children. */
     
     unsigned long *itemchildren;    /*!< itemchildren=array of the numbers
-                                         belonging to children */
+                                         belonging to children.  Is NULL if
+                                         there are no children. */
     
     struct objdata *od; /*< =NULL if normal field, otherwise the list of objs
                         for this field. */
@@ -771,8 +807,10 @@ struct initdata {
     
          *cfgpath,          /*!< Path to the configuration files for Devil. */
          *missionpath,  
-         levelext[4],
-         *alllevelexts,
+         levelext[4],       /*!< The extension of the Descent level.  Changes
+                                 depending on the current Descent version
+                                 being edited. */
+         *alllevelexts,     /*!< All loadable Descent levels? */
          *txtlistpath,      /*!< Path to the txt lists? */
     
          *playmsnpath,      /*!< Path to the Descent missions.  Are there

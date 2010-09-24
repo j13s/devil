@@ -203,6 +203,11 @@ void readstring(FILE *f, char **s) {
 
 /*! @brief Read an objtype struct from a Devil INI file. 
  *
+ *  @param[in]   f      Devil INI file pointer.
+ *  @param[out]  ot     Struct that holds an objtype.
+ *
+ *  @retval      num    Returns the number of infotypes under this objtype.
+ *
  *  The objtype is formatted like so:
  *
  *  <tt>0x00 0 {string}</tt>
@@ -210,19 +215,18 @@ void readstring(FILE *f, char **s) {
  *  The first value is an unsigned integer in hexadecimal.  The next is a
  *  signed integer.  The last is a string with a description of the object.
  *  The string follows the Devil INI string format (see readstring()).
- *
- *  @param[in]   f  Devil INI file pointer.
- *  @param[out]  ot Struct that holds an objtype.
  */
 int readobjtype(FILE *f, struct objtype *ot) {
     int num;
 
-
+    /* Read the object ID(?) and the number of child infotypes. */
     if (fscanf(f, "%x%d", (unsigned int *)&ot->no, &num) != 2) {
         printf("Can't read objtype.\n");
         exit(2);
     }
 
+
+    /* Read the description string. */
     readstring(f, &ot->str);
 
     if (init_test & 1) {
@@ -272,18 +276,21 @@ void readkeycode(FILE *f, struct w_keycode *kc, char **s) {
  *  @retval     p An int containing the number of child infoitem types under
  *                the current infoitem type.
  *
- *  {string} a b c d e f g
+ *  {desc} type data offset length multifunc num_children se_func
  *
- *  - {string} A Devil INI string that describes this infoitem.  See @ref
-               readstring.
- *  - a
- *  - b
- *  - c
- *  - d
- *  - e
- *  - f        The number of child infotypes under this infotype.
- *  - g
- *
+ *  - {desc}        A Devil INI string that describes this infoitem.  See @ref
+ *                  readstring.
+ *  - type          Encoded type of infoitem.  See @ref infotype.
+ *  - data          Encoded data type?  Something to do with @ref datastructs.
+ *  - offset        Probably tells Devil where to modify a value in a struct.
+ *  - length        Probably tells Devil the length of the data to be
+ *                  modified.
+ *  - multifunc     ???
+ *  - num_children  The number of child objtypes under this infotype.
+ *  - se_func       The encoded side effect function to be called.  If no 
+ *                  function is to be called, the set this to -1.  If this
+ *                  value can't be changed by the user, set to -2?  Is this
+ *                  for specific Descent data?
  */
 int readinfotype(FILE *f, struct infoitem *i) {
     int p, inr, tnr;
