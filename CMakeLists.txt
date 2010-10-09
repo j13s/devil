@@ -5,7 +5,7 @@ set(CMAKE_C_FLAGS
 "${CMAKE_C_FLAGS} -std=c99 -Werror -Wall -g3 -DGNU_C -DGO32 -pedantic -Wwrite-strings"
 )
 
-set(CMAKE_EXE_LINKER_FLAGS "-z muldefs")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -z muldefs")
 
 include_directories (
     "${PROJECT_SOURCE_DIR}/wins"
@@ -22,7 +22,7 @@ add_executable(
             do_stat.c   lac_cfg.c   savetool.c  title.c
             config.c    do_mod.c    do_tag.c    macros.c
             plotsys.c   tag.c       devil.c     do_move.c
-            grfx.c      options.c   plottxt.c      
+            grfx.c      options.c   plottxt.c
 )
 
 target_link_libraries(
