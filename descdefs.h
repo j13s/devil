@@ -5,8 +5,14 @@
  *  Encodes the Descent and Descent 2 versions.
  */
 enum descent {
-    d1_10_sw, d1_10_reg, d1_14_reg, d2_10_sw, d2_10_reg,
-    d2_11_reg, d2_12_reg, desc_number
+    d1_10_sw,	/*!< Descent Demo */
+    d1_10_reg,	/*!< Descent 1.0 */
+    d1_14_reg,	/*!< Descent 1.4+ */
+    d2_10_sw,	/*!< Descent 2 Interactive Demo */
+    d2_10_reg,	/*!< Descent 2 1.0 */
+    d2_11_reg,	/*!< Descent 2 1.1 */
+    d2_12_reg,	/*!< Descent 2 1.2 */
+    desc_number	/*!< Defines the number of encoded Descent versions. */
 };
 extern const char *extnames[desc_number];
 extern const char *ininames[desc_number];

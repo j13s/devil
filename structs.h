@@ -32,7 +32,9 @@
  #define INIFILE "config/devilg.ini"    
 #else
  #include <english/text.h>
- /* Stores filenames for use in Devil. */
+  /*! @def   INIFILE
+  *   @brief Stores filenames for use in Devil.
+  */
  #define INIFILE "config/devil.ini"     
 #endif
 
@@ -123,8 +125,8 @@ enum datastructs {
 };
 
 /*! @enum  infotype
- *  @brief Used to decode the type of widget for the editing windows in the windowing
- *         system.
+ *  @brief Used to decode the type of widget for the editing windows in the
+ *         windowing system.
  */
 enum infotype {
     it_selbutton,       /*!< A selection button that only allows one choice.
@@ -582,8 +584,9 @@ struct infoitem {
                                          belonging to children.  Is NULL if
                                          there are no children. */
     
-    struct objdata *od; /*< =NULL if normal field, otherwise the list of objs
-                        for this field. */
+    struct objdata *od; /*< If this is a normal field, then this will be a
+                            null pointer.  Otherwise, it stores the objtypes
+                            for this infoitem (robots, etcetera). */
     int sidefuncnr; /*< call which function */
     struct w_button *b; /*< the button for this infoitem */
 };
@@ -784,8 +787,8 @@ struct initdata {
     enum descent d_ver;     /*!< Stores the current Descent version in use. */
     char *fontname,         /*!< Name of the font to be used in Devil. */
     
-         *cfgname,          /*!< Name of the Devil configuration file.
-                             *   Extension is CFG. */
+         *cfgname,          /*!< Name of the Devil configuration file.  The
+                             *   default is devil.cfg. */
          
          *lastname,         /*!< Stores the current Devil configuration when
                                  Devil exits. */

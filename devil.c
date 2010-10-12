@@ -29,7 +29,11 @@
 #include "do_event.h"
 #include "askcfg.h"
 
-/* Descent and Descent 2 level file extensions */
+/*! @var   extnames
+ *  @brief char strings of Descent and Descent 2 level file extensions.
+ *
+ *  See @ref descent for Descent version encoding.
+ */
 const char *extnames[desc_number] = {
     "SDL",  /* Descent Demo */
     "RDL",  /* Descent 1.0 */
@@ -66,7 +70,7 @@ const char *extnames[desc_number] = {
 /*! @var vernames
     @brief Strings that fully describe the encoded Descent version.
 
-    Also aligns with the @ref descent enum.
+    See @ref descent for Descent version encoding.
  */
 const char *vernames[desc_number] = {
     "Descent 1 V1.0 shareware",
@@ -175,26 +179,45 @@ void my_abort(int sigcode) {
 }
 
 
-/* Encodes the command line parameters. */
+/* @var   cmdline_params
+ * @brief Encodes the command line parameters.
+ *
+ * clp_ stands for command line parameter.
+ */
 enum cmdline_params {
-    clp_new, clp_notitle, clp_config, num_cmdlineparams
+    clp_new,
+    clp_notitle,
+    clp_config,
+    num_cmdlineparams
 };
 
-/* The command line parameters. */
+/*! @var   cmdline_switches
+ *  @brief An array of char strings that will be matched against argc to
+ *        determine which option to execute.
+ *
+ *  - NEW     - Write a new Devil configuration file?
+ *  - NOTITLE - Skip the splash screen.
+ *  - CONFIG  - Configure Devil and exit without launching the editor. 
+ */
 const char *cmdline_switches[num_cmdlineparams] = {
-    "NEW",      /* Write a new Devil configuation file? */
-    "NOTITLE",  /* Skip the splash screen. */
-    "CONFIG"    /* Configure Devil and exit without launching the editor. */
+    "NEW",
+    "NOTITLE",
+    "CONFIG"
 };
 
-/* Strings for the usage statement if a bad parameter is passed to Devil. */
+/*! @var   cmdline_txts
+ *  @brief char strings that describe each command line parameter. */
 const char *cmdline_txts[num_cmdlineparams] = {
-    TXT_CMDSTARTNEW, TXT_CMDDONTSHOWTITLE, TXT_CMDCONFIG
+    TXT_CMDSTARTNEW,
+    TXT_CMDDONTSHOWTITLE,
+    TXT_CMDCONFIG
 };
 
 
 int main(int argn, char *argc[]) {
-    int i, j, title = 1;    /* Show splash screen if title is true. */
+    int i,
+        j,
+        title = 1;    /* Show splash screen if title is true. */
     long int with_cfg = 1,
              reconfig = 0;
     char buffer[128];
@@ -208,6 +231,7 @@ int main(int argn, char *argc[]) {
     printf("Devil %s%s\nCompiler: %s\nCompiled: %s %s\n", VERSION, LC_VERSION,
            SYS_COMPILER_NAME, __DATE__, __TIME__);
 
+    /* Check variable sizes.  Will need to rewrite for 64-bit machines. */
     if (sizeof(float) != 4 || sizeof(long int) != 4 || sizeof(short int) != 2
        || sizeof(int) != 4 || sizeof(char) != 1) {
         printf("Wrong float/int size. Check your compiler flags.\n");
@@ -281,6 +305,8 @@ int main(int argn, char *argc[]) {
         }
     }
 
+    /* Read the devil.ini file and initialize the init, view, pig, and
+       txtoffsets globals. */
     initeditor(INIFILE, title);
 
     if ( !readconfig() ) {

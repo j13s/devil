@@ -607,6 +607,8 @@ void initeditor(const char *fn, int c) {
        error. */
     my_assert( findmarker(f, "INITDATA", &init_test) );
     
+    /* Read devil.ini into the view, txtoffsets, init, and pig globals.  Also
+       read the palette filename into memory. */
     iniread(
         f,
         "dddpppdgggggggggdggggggggggggggggdddddddddddddddddsssssssssssssss",
@@ -633,7 +635,10 @@ void initeditor(const char *fn, int c) {
         &txtoffsets[0], &txtoffsets[1], &txtoffsets[2], &txtoffsets[3],
         
         &init.waittime, &init.macropath, &init.levelpath, &init.pogpath,
-        &init.txtlistpath, &init.cfgpath, &init.fontname, &palname,
+        &init.txtlistpath, &init.cfgpath, &init.fontname,
+        
+        &palname,
+        
         &init.cfgname, &init.lightname, &init.convtablename,
         &init.lastname,
         &init.batchfilename, &init.menuname,
@@ -688,14 +693,13 @@ void initeditor(const char *fn, int c) {
 
     /* Close devil.ini */
     fclose(f);
-    
+
+    /* Open the Devil palette file. */
     addcfgpath(&palname);
-    
     if ( ( f = fopen(palname, "rb") ) == NULL ) {
         printf("Can't open palette-file: %s.\n", palname);
         exit(2);
     }
-
     FREE(palname);
 
     /* Read the Descent and Descent 2 palettes stored in the Devil palette

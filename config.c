@@ -1021,7 +1021,12 @@ struct infoitem *findcopytypelist(struct infoitem *curi, int num,
     return ncuri;
 }
 
-
+/*! @fn    initobjtypelists
+ *  @brief 
+ *
+ *  @param [out]  is  Array of infoitem structs to be initialized.
+ *  @param [in]   num The number of infoitem structs in the is array.
+ */
 void initobjtypelists(struct infoitem *is, int num) {
     struct infoitem *i, *curi;
     struct objtype **ot, **lastot;
@@ -1031,12 +1036,17 @@ void initobjtypelists(struct infoitem *is, int num) {
     if (init_test & 1) {
         fprintf(errf, "Init objtype list. num=%d\n", num);
     }
-
+    
     for (i = is; i - is < num; i++) {
+        /* Check to see if there are even any objtypes to initialize.  If not,
+           then move on to the next infotype. */
         if (i->od == NULL) {
             continue;
         }
 
+        /* Check for special tokens in the Devil INI string.  If there aren't
+           any, then there is no need to initialize any objtypes. lastot will
+           be set to NULL if there are no objtypes to init. */
         for (ot = i->od->data, lastot = NULL; ot - i->od->data < i->od->size;
              ot++) {
             if ( (*ot)->str[0] == '>' || (*ot)->str[0] == '#' ||
@@ -1107,6 +1117,7 @@ void initobjtypelists(struct infoitem *is, int num) {
             i->od->size = curi->od->size + oldnum;
         }
 
+        /* Initialize the child infoitems. */
         for (s = 0; s < i->numchildren; s++) {
             initobjtypelists(i->children[s], i->numinchildren[s]);
         }
@@ -1141,17 +1152,18 @@ void printobjtypelists(struct infoitem *is, int num, int indent) {
 }
 
 
-/*! @brief Reads the devilx.ini and associated Descent version INI files.
+/*! @brief    Reads Devil CFG files.
  *
  *  @retval 0 Failed to read the INI file.  An error message will be printed
- *            to STDOUT describing what went wrong.
+ * 			  to STDOUT describing what went wrong.
  *  @retval 1 Read the INI files successfully.
  *
  *  func_desc
  *
  */
 int readconfig(void) {
-    int i, j;
+    int i,  /* Variable that stores values read from the CFG files. */
+        j;
     FILE *f, *hamf;
     char *ininame, *hamname, *hamfname, buffer[300];
     long int hamver;
@@ -1160,14 +1172,14 @@ int readconfig(void) {
     /* Read the DevilX INI file and store its values.  See lac_cfg.c. */
     lac_read_cfg();
 
-    /* Load the Devil CFG file. */
+    /* Load the Devil CFG file (devil.cfg). */
     while ( ( f = fopen(init.cfgname, "r+") ) == NULL ) {
         printf(TXT_CANTREADCFG, init.cfgname);
         return 0;
     }
 
 
-    /* Read the version number into the buffer... */
+    /* Read the version number from devil.cfg into the buffer... */
     if (fscanf(f, "%s", buffer) != 1) {
         printf(TXT_CANTREADCFG, init.cfgname);
         return 0;
@@ -1180,7 +1192,7 @@ int readconfig(void) {
     }
 
 
-    /* Read the PATHS marker, and if the number of Descent versions isn't
+    /* Read the PATHS marker, and if descent.desc_number isn't
        equal to what was read from the CFG file, then return 0. */
     my_assert( findmarker(f, "PATHS", &i) );
 
@@ -1199,13 +1211,13 @@ int readconfig(void) {
     /* Read the name of the HAM file into memory. */
     iniread(f, "s", &hamname);
 
-    /* Read the paths for the PIG file that corresponds to each Descent 
-       version. */
+    /* Read the paths for each PIG file that corresponds to the respective
+       Descent version. */
     for (i = 0; i < desc_number; i++) {
         iniread(f, "s", &init.pigpaths[i]);
     }
 
-    /* Read the keycodes into memory. */
+    /* Read the keyboard keycodes into memory. */
     printf(TXT_READKEYS);
     my_assert( findmarker(f, "KEYS", &view.num_keycodes) );
     
@@ -1217,9 +1229,14 @@ int readconfig(void) {
 
     /* Why do all of the keycodes lack flags? */
     for (i = 0; i < view.num_keycodes; i++) {
+    	/* Read the keycode and its text description into memory. */
         iniread(f, "k", &view.ec_keycodes[i], &view.txt_keycode[i]);
+        /* The flags are set by the event handlers?  No keys will have any
+           flags at this point. */
         view.ec_keycodes[i].flags = 0;
 
+        /* A keycode was read with an invalid associated event code.  Print
+           this error and return indicated a failure. */
         if (view.ec_keycodes[i].event < 0 || view.ec_keycodes[i].event >=
             ec_num_of_codes) {
             printf("Illegal keycode %#x %d %d\n", view.ec_keycodes[i].kbstat,
@@ -1248,6 +1265,7 @@ int readconfig(void) {
     init.xres = res_xysize[i][0];
     init.yres = res_xysize[i][1];
     
+    /* devil.cfg */
     fclose(f);
 
     /* Check to see if the CFG file has a Descent or Descent 2 version it can
@@ -1287,7 +1305,6 @@ int readconfig(void) {
             return 0;
         }
 
-        /* Why is i thrown away here? */
         if ( !findmarker(f, "ConvDefault", &i) ) {
             printf(TXT_CANTFINDCTMARKER, "ConvDefault");
             return 0;
@@ -1389,14 +1406,18 @@ int readconfig(void) {
     }
     strcat(init.alllevelexts, extnames[d1_14_reg]);
 
-
+    /* There can be either walls or doors, and this text string in the INIT
+       file lists the names of both types? */
     my_assert( findmarker(f, "DoorNames", &i) );
     iniread(f, "s", &pig.anim_txt_names);
+
     /* Now read all starts of animation textures for walls */
+    /* Rewrite to read from the HAM file. */
     my_assert( findmarker(f, "DoorStarts", &pig.num_anims) );
     checkmem( pig.anims = MALLOC(sizeof(struct texture *)*pig.num_anims) );
     checkmem( pig.anim_starts = MALLOC(sizeof(int) * pig.num_anims) );
 
+    /* Read the animation starts from the INI file? */
     for (i = 0; i < pig.num_anims; i++) {
         my_assert(fscanf(f, "%d", &pig.anim_starts[i]) == 1);
     }
