@@ -655,7 +655,7 @@ int newpigfile(char *pigname, FILE *pogfile) {
         strcpy(pigfname, init.pigpaths[init.d_ver]);
         strcat(pigfname, "/");
         strcat(pigfname, pigname);
-        strcpy(&pigfname[strlen(pigfname) - 3], "pig");
+        strcpy(&pigfname[strlen(pigfname) - 3], "PIG");
 
         if ( ( pf = fopen(pigfname, "rb") ) == NULL ) {
             printf("Can't open pigfile in newpigfile: '%s'\n", pigfname);

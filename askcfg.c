@@ -109,7 +109,7 @@ int writeconfig(int olddata) {
     fprintf(cfgfile, VERSION "\n");
     fprintf(cfgfile, ":PATHS %d\n", desc_number);
     fprintf(cfgfile, "{%s}\n", missionpath);
-    fprintf(cfgfile, "{descent2.ham}\n{}\n");
+    fprintf(cfgfile, "{DESCENT2.HAM}\n{}\n");
     fprintf(cfgfile, "{%s}\n{%s}\n", d1path, d1path);
     fprintf(cfgfile, "{}\n{%s}\n{%s}\n{%s}\n\n", d2path, d2path, d2path);
     fprintf(cfgfile, ":KEYS %d\n", NUM_HOTKEYS);

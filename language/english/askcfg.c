@@ -198,7 +198,7 @@ int checkd2version(char *path) {
     printf("Checking Descent 2 version...\n");
     makedospath(path, fname);
     strcat(fname, "/");
-    strcat(fname, "readme.txt");
+    strcat(fname, "README.TXT");
 
     if ( ( f = fopen(fname, "rb") ) != NULL ) {
         fseek(f, 0xb7, SEEK_SET);
@@ -293,7 +293,7 @@ int askconfigdata(int *d_ver, char *devilpath, char *d1path, char *d2path,
                 break;
 
             case 'C':
-                askpath(d2path, "Descent 2", "groupa.pig");
+                askpath(d2path, "Descent 2", "GROUPA.PIG");
                 break;
 
             case 'D':
@@ -338,13 +338,13 @@ int askconfigdata(int *d_ver, char *devilpath, char *d1path, char *d2path,
                 }
 
                 if ( *d_ver == 2 &&
-                    !checkpath(d2path, "groupa.pig", "Descent 2") ) {
+                    !checkpath(d2path, "GROUPA.PIG", "Descent 2") ) {
                     break;
                 }
 
                 if (*d_ver == 2) {
                     strcpy(missionpath, d2path);
-                    strcat(missionpath, "/missions");
+                    strcat(missionpath, "/MISSIONS");
                     *d_ver = checkd2version(d2path);
                     printf(
                         "Confirmed Descent 2 version %s in %s\n",
