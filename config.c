@@ -1028,8 +1028,10 @@ struct infoitem *findcopytypelist(struct infoitem *curi, int num,
  *  @param [in]   num The number of infoitem structs in the is array.
  */
 void initobjtypelists(struct infoitem *is, int num) {
-    struct infoitem *i, *curi;
-    struct objtype **ot, **lastot;
+    struct infoitem *i,
+                    *curi;
+    struct objtype **ot,
+                   **lastot;
     int s, oldnum;
 
 

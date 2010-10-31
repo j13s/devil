@@ -23,10 +23,24 @@
 #include "askcfg.h"
 
 #define NUM_GRFXDRVS 5
+/*! @var   grfxdrvs
+ *  @brief An array of strings that will be used to print the names of each
+ *         GRX graphics driver.  This array is used when choosing a driver at
+ *         configuration.
+ */
 const char *grfxdrvs[NUM_GRFXDRVS] = {
     "VESA", "S3VESA", "ET4000", "CL5426", "MACH64"
 };
 
+/*! @fn     makedospath
+ *  @brief  Calls ws_makepath from the Wins library.
+ *
+ *  @param[in]  oldpath The old Unix-style path to convert to the DOS path. 
+ *  @param[out] newpath The new converted DOS style path.
+ *
+ *  Currently does nothing since this is a Linux port.  See
+ *  @ref ws_makepath.
+ */
 void makedospath(const char *oldpath, char *newpath) {
     ws_makepath(oldpath, newpath);
 }
@@ -38,6 +52,10 @@ void makedospath(const char *oldpath, char *newpath) {
  #include <english/askcfg.c>
 #endif
 
+
+/*! @fn    writeconfig
+ *  @brief
+ */ 
 int writeconfig(int olddata) {
     char devilpath[200], d1path[200], d2path[200], missionpath[200], *h;
     int i, d_ver, grfxdriver, resolution;

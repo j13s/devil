@@ -9,7 +9,7 @@ const char *grfxdescription[NUM_GRFXDRVS] = {
 };
 
 /*! @def NUM_RESOLUTIONS
- *  Defines the number of X,Y resolution pairs.
+ *  Defines the number resolutions in which the editor can run.
  */
 #define NUM_RESOLUTIONS 4
 /*! \var res_xysize
@@ -19,17 +19,37 @@ const char *grfxdescription[NUM_GRFXDRVS] = {
     Stores NUM_RESOLUTIONS 2 member int array that hold the X and Y screen
     resolutions.
  */
-int res_xysize[NUM_RESOLUTIONS][2] =
-{ { 640, 480 }, { 800, 600 }, { 1024, 768 }, { 1280, 1024 } };
+int res_xysize[NUM_RESOLUTIONS][2] = {
+    { 640, 480 },
+    { 800, 600 },
+    { 1024, 768 },
+    { 1280, 1024 }
+};
 
+
+/*! @brief Tests to see if a file exists.
+ *
+ *  @param[in]  path        The full-path of the directory in which the file
+ *                          exists.
+ *  @param[in]  testfile    The filename of the file to test for existence.
+ *
+ *  @retval     1           Returns true if the file can be opened.
+ *  @retval     0           Returns false if the file cannot be opened.
+ */
 int checkpath(char *path, const char *testfile, const char *text) {
-    char testpath[300];
-    FILE *f = NULL;
+    char testpath[300]; /* The full path of the file to open. */
+    FILE *f = NULL;     /* The file will only be opened and closed, nothing
+                           more, using this variable. */
 
-
-    makedospath(path, testpath);
+    
+    /* Append the testfile string to the path string.  Need to add a 
+       forward-slash to prevent loading the wrong path. */
+    makedospath(path, testpath);    /* Not needed for the Linux port. */
     strcat(testpath, "/");
     strcat(testpath, testfile);
+    
+    /* The opened file will be tested to see if it exists.  If not, an error
+       message will be printed letting the user know what went wrong. */
     f = fopen(testpath, "rb");
 
     if (f) {
@@ -45,22 +65,38 @@ int checkpath(char *path, const char *testfile, const char *text) {
     }
 }
 
-
+/*! @fn     askpath
+ *  @brief  Takes a path the user types in.
+ *
+ *  @param[in,out]  oldpath     The current directory that will be changed.
+ *  @param[in]  text        The type of directory that will be changed (Devil,
+ *                          Descent, Descent 2 directories).
+ *  @param[in]  testfile    The file that will test whether the new path
+ *                          contains the files that Devil needs to work.
+ *
+ *  The path "q" will have to be entered in directory to the config file.  "q"
+ *  will exit the function if entered by the user.
+ */
 void askpath(char *oldpath, const char *text, const char *testfile) {
-    char testpath[300], path[300];
-    int ok = 1;
+    char testpath[300], /* Stores the user-entered path. */
+         path[300];     /* testpath and testfile are concatenated here. */
+    int ok = 1;         /* Flag that indicates if the direrctory is valid. */
 
 
+    /* path needs to have a valid path for the do-while loop to exit. */
     makedospath(oldpath, path);
 
     do {
+        /* Prompt the user for the new directory asked for in text. */
         printf("%s directory (old: \"%s\", abort with 'q'): ", text, oldpath);
         scanf("%199s", testpath);
 
+        /* Exit if the path equals q. */
         if (strlen(testpath) == 1 && tolower(testpath[0]) == 'q') {
             return;
         }
 
+        /* If  */
         if (strlen(testpath) == 0) {
             strcpy(testpath, path);
         }
